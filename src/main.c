@@ -1,4 +1,5 @@
 #include <core/definitions.h>
+#include <platform/system.h>
 #include <engine/runtime.h>
 
 #if defined(_WIN32)
@@ -14,13 +15,73 @@ wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdS
     freopen("CONOUT$", "w", stdout);
 #endif
 
-    printf("Hello, world.\n");
-    MessageBoxA(NULL, "Hello", "World", MB_OK);
+    // --- Startup Preamble ----------------------------------------------------
+    //
+    // When the debug console is open, display the preamble header for the user.
+    // For production builds, you will need to remove -DNX_DEBUG_CONSOLE flag from
+    // the build script to ensure the user does not see this. This is separate from
+    // the -DNX_DEBUG_BUILD flag, since non-debug builds may need access to cout.
+    //
+    
+    printf("-- Ninetails Game Engine Version 1.7.0A\n");
+    printf("-- Developed by Chris DeJong, magictrick-dev on GitHub\n");
+    printf("-- Debugging Output Console (-DNX_DEBUG_CONSOLE)\n");
+    printf("\n");
+
+    // --- System Startup ------------------------------------------------------
+    //
+    // Before runtime begins, the game engine needs some critical resources that
+    // must be loaded before runtime can even start. Think of it like an init step
+    // for the init step. We collect memory, initialize any backend things like
+    // lookup tables, and other critical stuff.
+    //
+
+    u64 application_memory_size = NX_GIGABYTES(4);
+    u64 application_page_granularity = system_memory_page_size();
+    printf("-- Runtime Memory Parameters\n");
+    printf("--      %-32s : %llu bytes\n", "Application Memory Size", application_memory_size);
+    printf("--      %-32s : %llu bytes\n", "Page Granularity Size", application_page_granularity);
+
+    vptr application_memory_ptr = system_virtual_alloc(NULL, application_memory_size);
+    printf("--      %-32s : OK!\n", "Application Memory Buffer");
+
+#if defined(NX_DEBUG_BUILD)
+
+    // Additional diagnostic information.
+    printf("-- Runtime Diagnostics\n");
+    u64 os_frequency = system_timestamp_frequency();
+    printf("--      %-32s : %llu\n", "OS Frequency Interval", os_frequency);
+    printf("--      %-32s : ...\r", "Estimating CPU Frequency");
+    u64 cpu_frequency = system_cpustamp_frequency();
+    printf("--      %-32s : OK!   \n", "Estimating CPU Frequency");
+    printf("--      %-32s : %llu\n", "CPU Frequency Interval", cpu_frequency);
+
+#endif
+
+    // --- Runtime Environment -------------------------------------------------
+    //
+    // Here is where we forward our execution to "user land". Since we don't want
+    // to bulk out the entry function, we pass it over to our runtime functions.
+    // We let these functions soft-fail gracefully.
+    //
+
+    if (!runtime_init(application_memory_ptr))
+    {
+        printf("-- Application initialization failed.\n");
+        return 1;
+    }
+
+    if (runtime_main(application_memory_ptr))
+    {
+        printf("-- Application main returned a non-zero return code.\n");
+        return 1;
+    }
 
     return 0;
 }
 
+#   include <platform/win32/system.c>
+
 #else
 #   error "Platform has not been defined."
 #endif
-

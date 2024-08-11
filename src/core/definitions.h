@@ -1,6 +1,8 @@
 #ifndef SRC_CORE_DEFINITIONS_H
 #define SRC_CORE_DEFINITIONS_H
 #include <stdint.h>
+#include <stdbool.h>
+#include <assert.h>
 
 typedef uint8_t     u8;
 typedef uint16_t    u16;
@@ -18,6 +20,7 @@ typedef float       r32;
 typedef double      r64;
 typedef const char* ccstr;
 typedef char*       cstr;
+typedef void*       vptr;
 
 #define NX_BYTES(n)         ((u64)n)
 #define NX_KILOBYTES(n)     (NX_BYTES(n)        * 1024)
@@ -31,5 +34,21 @@ typedef char*       cstr;
 
 #define NX_BYTEOFFSET(ptr, n) ((u8*)ptr + n)
 #define NX_BYTEOFFSET_AND_RECAST(ptr, n, type) ((type*)(u8*)ptr + n))
+
+#if defined(NX_DEBUG_BUILD)
+#   define NX_ASSERT(stm) assert((stm))
+#   define NX_ENSURE_POINTER(ptr) assert(ptr != NULL)
+
+#   if defined(NX_DEBUG_USE_PEDANTIC_ASSERT)
+#       define NX_PEDANTIC_ASSERT(stm) assert((stm))
+#   else
+#       define NX_PEDANTIC_ASSERT(stm) 
+#   endif
+
+#else
+#   define NX_ENSURE_POINTER(ptr)
+#   define NX_ASSERT(stm)
+#   define NX_PEDANTIC_ASSERT(stm) 
+#endif
 
 #endif
