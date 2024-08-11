@@ -18,8 +18,8 @@ typedef int32_t     b32;
 typedef int64_t     b64;
 typedef float       r32;
 typedef double      r64;
-typedef const char* ccstr;
-typedef char*       cstr;
+typedef const char* ccptr;
+typedef char*       cptr;
 typedef void*       vptr;
 
 #define NX_BYTES(n)         ((u64)n)
@@ -38,6 +38,7 @@ typedef void*       vptr;
 #if defined(NX_DEBUG_BUILD)
 #   define NX_ASSERT(stm) assert((stm))
 #   define NX_ENSURE_POINTER(ptr) assert(ptr != NULL)
+#   define NX_NO_IMPLEMENTATION(msg) assert(!(msg))
 
 #   if defined(NX_DEBUG_USE_PEDANTIC_ASSERT)
 #       define NX_PEDANTIC_ASSERT(stm) assert((stm))
@@ -49,6 +50,13 @@ typedef void*       vptr;
 #   define NX_ENSURE_POINTER(ptr)
 #   define NX_ASSERT(stm)
 #   define NX_PEDANTIC_ASSERT(stm) 
+#   define NX_NO_IMPLEMENTATION(msg)
 #endif
+
+typedef struct buffer
+{
+    vptr ptr;
+    u64 size;
+} buffer;
 
 #endif

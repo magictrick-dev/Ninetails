@@ -1,19 +1,21 @@
 #include <core/definitions.h>
+#include <core/memoryops.h>
 #include <platform/system.h>
+#include <platform/filesystem.h>
 #include <engine/runtime.h>
 
 #if defined(_WIN32)
-#   include <windows.h>
-#   include <stdio.h>
+#include <windows.h>
+#include <stdio.h>
 
 int WINAPI 
 wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
 
-#if defined(NX_DEBUG_CONSOLE)
-    AllocConsole();
-    freopen("CONOUT$", "w", stdout);
-#endif
+#   if defined(NX_DEBUG_CONSOLE)
+        AllocConsole();
+        freopen("CONOUT$", "w", stdout);
+#   endif
 
     // --- Startup Preamble ----------------------------------------------------
     //
@@ -45,18 +47,20 @@ wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdS
     vptr application_memory_ptr = system_virtual_alloc(NULL, application_memory_size);
     printf("--      %-32s : OK!\n", "Application Memory Buffer");
 
-#if defined(NX_DEBUG_BUILD)
+    buffer heap_buffer = { application_memory_ptr, application_memory_size };
 
-    // Additional diagnostic information.
-    printf("-- Runtime Diagnostics\n");
-    u64 os_frequency = system_timestamp_frequency();
-    printf("--      %-32s : %llu\n", "OS Frequency Interval", os_frequency);
-    printf("--      %-32s : ...\r", "Estimating CPU Frequency");
-    u64 cpu_frequency = system_cpustamp_frequency();
-    printf("--      %-32s : OK!   \n", "Estimating CPU Frequency");
-    printf("--      %-32s : %llu\n", "CPU Frequency Interval", cpu_frequency);
+#   if defined(NX_DEBUG_BUILD)
 
-#endif
+        // Additional diagnostic information.
+        printf("-- Runtime Diagnostics\n");
+        u64 os_frequency = system_timestamp_frequency();
+        printf("--      %-32s : %llu\n", "OS Frequency Interval", os_frequency);
+        printf("--      %-32s : ...\r", "Estimating CPU Frequency");
+        u64 cpu_frequency = system_cpustamp_frequency();
+        printf("--      %-32s : OK!   \n", "Estimating CPU Frequency");
+        printf("--      %-32s : %llu\n", "CPU Frequency Interval", cpu_frequency);
+
+#   endif
 
     // --- Runtime Environment -------------------------------------------------
     //
@@ -65,13 +69,13 @@ wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdS
     // We let these functions soft-fail gracefully.
     //
 
-    if (!runtime_init(application_memory_ptr))
+    if (!runtime_init(heap_buffer))
     {
         printf("-- Application initialization failed.\n");
         return 1;
     }
 
-    if (runtime_main(application_memory_ptr))
+    if (runtime_main(heap_buffer))
     {
         printf("-- Application main returned a non-zero return code.\n");
         return 1;
@@ -80,7 +84,8 @@ wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdS
     return 0;
 }
 
-#   include <platform/win32/system.c>
+#include <platform/win32/system.c>
+#include <platform/win32/filesystem.c>
 
 #else
 #   error "Platform has not been defined."
