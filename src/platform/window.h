@@ -2,7 +2,7 @@
 #define SRC_PLATFORM_WINDOW_H
 #include <core/definitions.h>
 
-// --- Window API --------------------------------------------------------------
+// --- Window API --- Read Me --------------------------------------------------
 //
 // The window API is by far the most important API to get correct, both in implementation
 // and in use. Please read carefully.
@@ -32,6 +32,36 @@
 // as you want, but no one *wants* the window to ignore you (or even worse, close very
 // slowly). The engine is designed so that you should be able to close almost immediately.
 //
+//
+//
+// --- Software Rendering to the Window ----------------------------------------
+//
+// Window drawing functions are entirely software based and should be used if you're
+// intending to write a software renderer. These functions expose the direct system
+// calls to blitting to a window.
+//
+// If you want to perform hardware-based rendering, using the approprate hardware
+// renderer calls instead. These are defined in <engine/renderer.h>.
+// 
+// There are some caveats to software rendering that aren't entirely apparent. For
+// example, Win32 pixel colors are in in BGR format, not your typical RGB format.
+// The bitmask must be set in the image to determine which format the *bitmap* is
+// using to ensure that the copy routine in the implementation file knows where to
+// place pixels.
+//
+// A lot of work is put into making these software rendering routines as performant 
+// as possible in the implementation, however you shouldn't directly render to the
+// window. Instead, create a "backbuffer" of sorts that you render to and then
+// render that bitmap to the window. It's easier to vectorize your software renderer
+// routines when you have direct control of the pixel blitting. Much like hardware
+// rendering, draw calls are expensive and you should make as few as possible to
+// ensure that everything is running as fast as possible. If you do this, you will
+// be able to write full-fledged 2D games doing this. (Although you will find that
+// using OpenGL as intermediatte rendering layer for software rendering a bit more
+// desirable. Use your software-rendered bitmaps as textures and render a single
+// quad to the screen. This will give you the full benefits of vertical syncing
+// and faster blitting.)
+//
 
 void window_initialize(ccptr title, i32 width, i32 height, b32 show);
 void window_set_title(ccptr title);
@@ -40,6 +70,15 @@ void window_set_visibility(b32 hide);
 void window_set_maximization(b32 enable);
 void window_set_borderless_fullscreen(b32 enable);
 void window_set_resizable(b32 enable);
+
+// TODO(Chris): We will revisit this once we have everything else working as intended.
+//              Software rendering will be explored once a 2D hardware renderer is
+//              built and ready.
+
+u32 window_get_pixel(i32 x, i32 y);
+void window_set_pixel(i32 x, i32 y);
+void window_set_bitmap(image bitmap, u32 offset_x, u32 offset_y);
+void window_set_fill(u8 r, u8 g, u8 b);
 
 vptr window_get_handle();
 i32 window_get_width();

@@ -59,4 +59,17 @@ typedef struct buffer
     u64 size;
 } buffer;
 
+typedef struct image
+{
+    vptr buffer;
+    u32 width;
+    u32 height;
+    u32 pitch;
+    u32 bits_per_pixel;
+    u32 red_mask;
+    u32 blue_mask;
+    u32 green_mask;
+    u32 alpha_mask;
+} image;
+
 #endif
