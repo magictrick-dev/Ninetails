@@ -1,3 +1,7 @@
+<a href="https://www.vecteezy.com"><img src="./doc/display.jpg" style="display: inline-text;" width="256px" /></a>
+
+<i style="font-size:8px">Project Icon is a Placeholder</i>
+
 # Ninetails Game Engine
 
 Ninetails is a 2D game engine optimized for performance and customizability. This
