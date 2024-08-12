@@ -93,7 +93,7 @@ window_initialize(ccptr title, i32 width, i32 height, b32 show)
     if (state->ghost_thread_initialized == false) return false;
 
     // We can now create our window.
-    WNDCLASSEXW display_window_class    = {};
+    WNDCLASSEXW display_window_class    = {0};
     display_window_class.cbSize         = sizeof(display_window_class);
     display_window_class.lpfnWndProc    = &wMainWindowProc;
     display_window_class.hInstance      = GetModuleHandleW(NULL);
@@ -106,7 +106,7 @@ window_initialize(ccptr title, i32 width, i32 height, b32 show)
 
     // Calculate our window size from the requested client area; the value
     // we get back accomodate the title bar and the bordering stuff.
-    RECT client_rect    = {};
+    RECT client_rect    = {0};
     client_rect.right   = width;
     client_rect.bottom  = height;
 
@@ -117,7 +117,7 @@ window_initialize(ccptr title, i32 width, i32 height, b32 show)
     i32 window_height   = client_rect.bottom - client_rect.top;
 
     // Establish our creation context.
-    window_creation_context create_params = {};
+    window_creation_context create_params = {0};
     create_params.ex_style            = 0;
     create_params.class_name          = display_window_class.lpszClassName;
     create_params.window_name         = L"Ninetails Game Engine";
@@ -305,7 +305,7 @@ window_set_size(i32 width, i32 height)
 {
 
     window_state *state = get_window_state();
-    RECT client_rect    = {};
+    RECT client_rect    = {0};
     client_rect.right   = width;
     client_rect.bottom  = height;
 
@@ -565,7 +565,7 @@ wGhostThreadMain(LPVOID user)
     window_state *state = get_window_state();
     NX_PEDANTIC_ASSERT(state != NULL);
 
-    WNDCLASSEXW ghost_window_class    = {};
+    WNDCLASSEXW ghost_window_class    = {0};
     ghost_window_class.cbSize         = sizeof(ghost_window_class);
     ghost_window_class.lpfnWndProc    = &wGhostWindowProc;
     ghost_window_class.hInstance      = GetModuleHandleW(NULL);
@@ -586,7 +586,7 @@ wGhostThreadMain(LPVOID user)
     while(state->ghost_thread_runtime)
     {
 
-        MSG current_message = {};
+        MSG current_message = {0};
         GetMessageW(&current_message, 0, 0, 0);
         TranslateMessage(&current_message);
         DispatchMessageW(&current_message);
