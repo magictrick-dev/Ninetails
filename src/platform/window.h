@@ -8,8 +8,7 @@
 // and in use. Please read carefully.
 //
 // Ninetails enforces one window instance, meaning that you can only create one
-// window at a time. This is apparent by the fact that the API doesn't return any
-// handles back to the user.
+// window at a time.
 //
 // You first initialize the window with window_initialize(). This will create a
 // window for you. The show parameter dictates whether or not the window will be
@@ -82,23 +81,42 @@
 // and faster blitting.)
 //
 
-b32 window_initialize(ccptr title, i32 width, i32 height, b32 show);
-void window_process_events();
-b32 window_should_close();
-void window_close();
+b32     window_initialize(ccptr title, i32 width, i32 height, b32 show);
+void    window_process_events();
+void    window_close();
+b32     window_should_close();
+
+vptr    window_get_handle();
+ccptr   window_get_title();
+i32     window_get_width();
+i32     window_get_height();
+i32     window_get_x_position();
+i32     window_get_y_position();
+void    window_get_size(i32 *width, i32 *height);
+void    window_get_position(i32 *x, i32 *y);
+
+void    window_set_title(ccptr title);
+void    window_set_size(i32 width, i32 height);
+void    window_set_maximization(b32 enable);
+void    window_set_resizable(b32 enable);
+void    window_set_visibility(b32 hide);
+void    window_set_borderless_fullscreen(b32 enable, i32 exit_width, i32 exit_height);
+
+b32     window_is_open();
+b32     window_is_borderless_fullscreen();
+b32     window_is_maximized();
+b32     window_is_minimized();
+b32     window_is_focused();
+b32     window_is_resizable();
+b32     window_is_visible();
+
+b32     window_did_size_change();
+b32     window_did_focus_change();
+
 
 /*
-void window_set_title(ccptr title);
-void window_set_size(i32 width, i32 height);
-void window_set_visibility(b32 hide);
-void window_set_maximization(b32 enable);
 void window_set_borderless_fullscreen(b32 enable);
-void window_set_resizable(b32 enable);
 */
-
-// TODO(Chris): We will revisit this once we have everything else working as intended.
-//              Software rendering will be explored once a 2D hardware renderer is
-//              built and ready.
 
 /*
 u32 window_get_pixel(i32 x, i32 y);
@@ -108,21 +126,6 @@ void window_set_fill(u8 r, u8 g, u8 b);
 */
 
 /*
-vptr window_get_handle();
-i32 window_get_width();
-i32 window_get_height();
-ccptr window_get_title();
-void window_get_size(i32 *width, i32 *height);
-void window_get_position(i32 *x, i32 *y);
-
-b32 window_is_open();
-b32 window_is_borderless_fullscreen();
-b32 window_is_maximized();
-b32 window_is_minimized();
-b32 window_is_focused();
-b32 window_is_resizable();
-b32 window_is_visible();
-
 void window_swap_buffers();
 */
 
