@@ -72,6 +72,27 @@ show that doesn't have to be the case.
     It requires one or two functions to work and overriding the memory allocation
     routines are trivial to do.
 
+- **Input Abstraction API**
+
+    Input is one of the few parts of the engine that have a significant abstraction
+    layer for. This is because input varies wildly between platforms, so Ninetails
+    provides a unified input system which maps system inputs to platform inputs.
+    This mapping corresponds to a virtual layout equivalent to a standard QWERTY
+    layout. Additionally, controller maps correspond to the modern AB/XY layouts
+    that are found on modern xbox controllers.
+
+    These maps doesn't necessarily mean that they are mapped to those keys, only
+    that they're logically set in those locations. This ensures consistency on
+    platforms.
+
+    Finally, input is frame-bound. This is a consequence of how input is provided
+    by the kernel. It is possible to do better, but this comes with some side effects
+    that are otherwise undesirable by the user. (Windows provides low-level access to
+    keyboard input which gets you really low-latency input, but this also means that
+    the system can be affected by the applications responsiveness. Through testing,
+    this behavior is completely unacceptable, so we default to the standard method
+    of retrieving keyboard input by Windows.)
+
 ## Building the Engine from Source
 
 In order to build Ninetails, you will need to have Visual Studio installed with
@@ -80,7 +101,8 @@ compiler by setting VCVars or launching the developer console (prior option pref
 Run the build script, which is automatically configured with all the options necessary
 to compile the project at the root directory.
 
-Output files are stored in `bin/*`, including the executable.
+Output files are stored in `bin/*`, including the executable. You will need to create
+this folder or modify the build file to accomodate a different directory.
 
 No other dependencies required.
 
