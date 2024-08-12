@@ -1,101 +1,47 @@
 <p align="center"><a href="https://www.vecteezy.com"><img src="./doc/display.svg" style="display: inline-text;" height="300px" /></a></p>
 
-# Ninetails Game Engine
+Ninetails is a game engine targeted towards indie game developers and hobbyists alike.
+What separates Ninetails from general-purpose game engines is that it targets developers who
+want deeper control over how their engine behaves. This is accomplished by presenting a
+set of low-level platform APIs which can be used to develop higher order game engine components.
+Such components are provided for use, but are not required to develop with Ninetails. For those who
+want a fresh project but do not want to trudge through the grunt work of developing
+the platform abstractions needed to work with the hardware will be right at home with
+this game engine since most of that work is done for you.
 
-Ninetails is a 2D game engine optimized for performance and customizability. This
-project is the barebones necessary to develop indie game projects and does not come
-with your typical game engine utilities. Instead, it provides all the low-level APIs
-to create such utilities so that they can be tailor fitted towards any given project.
+This engine has two goals in mind. The first is software quality. User experience and
+responsive behavior is a critical aspect of this engine, so careful work has been made
+to make this process easier for the developer. Secondly, this engine makes zero assumptions
+about what you intend to do with it. Think of it like a framework; how much of a game engine
+you want is entirely dependent on how much of the engine you intend to use. You could,
+in theory, develop your own engine libraries and with the provided platform abstractions to
+tailor fit the engine that fits your needs.
 
-The goal of this project is to create a base project that indie game developers can
-use to shortcut the early development process by providing a set of performant subsystems
-that can be extended. Games and software have lost their quality and it is my mission to
-show that doesn't have to be the case.
+Ninetails is also free to use with the MIT license. If you intend to use Ninetails,
+in a commercial project, *please* credit all major contributors in the credits of the
+game. You are not required to do so, but it would be very kind of you to do so.
 
-- **Window Subsystem**
+# Getting Started
 
-    The window system in Ninetails is designed to be highly responsive. Even modern
-    PC games struggle with this, so the Ninetails game engine remedies this by providing
-    a non-blocking window system. This comes with some minor concessions about how input
-    is fed into the engine.
+This project is written using the C-programming language.
 
-- **Rendering Subsystem**
+Developing a game with Ninetails is not like Unity, Godot, or Unreal. The game
+is designed to be directly coupled with the engine. There is no "create new project" button. Simply
+clone the project and begin programming.
 
-    The rendering subsystem is hardware accelerated by default. The rendering API is
-    directly exposed to the user should they wish to access it. Currently, Ninetails
-    uses OpenGL as the API of choice for this task.
+In order to main modularity between Ninetails and your game, organize and modify
+`src/engine/runtime.h` and `src/engine/runtime.c` such that it forwards off your
+render and update functionality to a separate implementation file. I recommend creating
+a folder like `src/game/` which contains all your game source files. This indirection
+will help make it easier to get newer version of Ninetails without having to reintegrate
+your game's source code.
 
-- **Audio Subsystem**
+Due to the nature of how Ninetails works, you will be tempted to modify core platform
+APIs found in `src/platform/`. This is absolutely fine to do, but be warned that collecting
+updates from the project repository will become difficult. You should expect API
+breaking changes in the platform APIs pretty regularly.
 
-    The audio subsystem, unlike the rendering subsystem, is not exposed by default.
-    Instead, it utilizes the lowest latency OS API and provides a rolling buffer
-    back to the user to mix audio into. This means that audio synchronization and
-    such are up to the user to implement.
-
-- **Jobbing Subsystem**
-
-    For asynchronous multithreading tasks, a primitive jobbing system is provided
-    to make this easier. This doesn't supplement specialize parallelization tasks.
-    For example, the jobbing system can help distribute entity update workloads,
-    file resource fetching, and cleanup routines. Jobs are not differentiable,
-    only that the tasklist can be joined until the queue is complete. The main
-    thread can participate as it waits. For the most part, the jobbing system is
-    designed for updating large amounts of independent data.
-
-- **Memory Allocators**
-
-    Ninetails ships with a handful of custom memory allocators. The most common
-    allocator you will see and use in this project is the `memory_arena` allocator.
-    This allocator is by far the most robust and performant allocator you can use
-    and works perfectly for game development. In addition to this, there are additional
-    allocators that can be used depending on the shape of the data being used in
-    conjuction of the arena allocator.
-
-- **Limited Library Dependencies**
-
-    In order to keep things barebones, Ninetails only uses a select few libraries.
-    These libraries are vetted by the community and widely regarded for their quality
-    and ease-of-use. These libraries are available for use and are not required to
-    develop with Ninetails (though you probably will since they're just that good).
-    Instead, Ninetails utilizes OS-provided libraries to do the heavy lifting. This
-    low-dependency requirement of Ninetails ensures that there is no mystery of what
-    is happening your code.
-
-    **Dear ImGUI:** For creating a GUI systems and debugging. Requires some amount
-    of experience and comfort reading code for documentation, but is super easy to
-    get the hang of once you do.
-
-    **GLAD:** No one wants to write function pointers for OpenGL, so GLAD is a must
-    for using OpenGL. This is a near unavoidable library to use, but since it provides
-    function pointer definitions and typenames, GLAD itself is extremely lightweight.
-
-    **STB Image:** Parsing `.png` files is the devil's work and no one wants to do
-    this by hand. Fortunately, this library does all this for you so you don't have to.
-    It requires one or two functions to work and overriding the memory allocation
-    routines are trivial to do.
-
-- **Input Abstraction API**
-
-    Input is one of the few parts of the engine that have a significant abstraction
-    layer for. This is because input varies wildly between platforms, so Ninetails
-    provides a unified input system which maps system inputs to platform inputs.
-    This mapping corresponds to a virtual layout equivalent to a standard QWERTY
-    layout. Additionally, controller maps correspond to the modern AB/XY layouts
-    that are found on modern xbox controllers.
-
-    These maps doesn't necessarily mean that they are mapped to those keys, only
-    that they're logically set in those locations. This ensures consistency on
-    platforms.
-
-    Finally, input is frame-bound. This is a consequence of how input is provided
-    by the kernel. It is possible to do better, but this comes with some side effects
-    that are otherwise undesirable by the user. (Windows provides low-level access to
-    keyboard input which gets you really low-latency input, but this also means that
-    the system can be affected by the applications responsiveness. Through testing,
-    this behavior is completely unacceptable, so we default to the standard method
-    of retrieving keyboard input by Windows.)
-
-## Building the Engine from Source
+# Building the Engine from Source
 
 In order to build Ninetails, you will need to have Visual Studio installed with
 Desktop Development with C++ installed. You need to have access to the `cl.exe`
@@ -106,29 +52,28 @@ to compile the project at the root directory.
 Output files are stored in `bin/*`, including the executable. You will need to create
 this folder or modify the build file to accomodate a different directory.
 
-No other dependencies required.
+No other external dependencies required. Everything is provided in source.
 
-## Contributing to the Engine
+# Contributing to the Engine
 
 If you would like to contribute to the project, submit a pull request detailing
 the changes made to the engine. Please keep pull requests single-featured. While
 it isn't required, it would be helpful to match the coding style of the project.
 If you're unsure, browse `src` header and source files to get a basic idea.
 
-For bug fixes, please make sure adequately describe the bug that is being fixed, along
+For bug fixes, please make sure to adequately describe the bug that is being fixed, along
 with appropriate description of how it occurs and the steps reproduce. If I am not
 able to reproduce the bug on my system, then a screenshot/video of the bug would
-suffice as an example.
+suffice as an example to see what is happening.
 
 *All contributions to the game engine must not use the standard library outside
 of what is already included. This includes* `malloc()/free()`. Ninetails uses
 a custom allocator and provides a number of utilities to make memory management
 easy and intuitive.
 
-## Documentation
+# Documentation
 
-TBD. Documenation will be provided once all core libraries are created. Some documentation
-is provided, but there is no guarantee that they're complete. Feel free to browse.
+Documenation will be provided once all core libraries are created.
 
 - **[Ninetails Build System](./doc/BUILD_SYSTEM.md)**
 
@@ -138,7 +83,7 @@ is provided, but there is no guarantee that they're complete. Feel free to brows
 
     There are a number of typedefs in Ninetails and they are an absolute must to use.
 
-## License
+# License
 
 Copyright (c) 2024 Christopher DeJong / magictrick-dev on GitHub
 
