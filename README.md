@@ -1,6 +1,4 @@
-<a href="https://www.vecteezy.com"><img src="./doc/display.jpg" style="display: inline-text;" width="256px" /></a>
-
-<i style="font-size:8px">Project Icon is a Placeholder</i>
+<p align="center"><a href="https://www.vecteezy.com"><img src="./doc/display.jpg" style="display: inline-text;" width="256px" /></a></p>
 
 # Ninetails Game Engine
 
