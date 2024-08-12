@@ -84,7 +84,9 @@
 b32     window_initialize(ccptr title, i32 width, i32 height, b32 show);
 void    window_process_events();
 void    window_close();
-b32     window_should_close();
+-32     window_should_close(); ``
+
+    Documentation here.
 
 vptr    window_get_handle();
 ccptr   window_get_title();

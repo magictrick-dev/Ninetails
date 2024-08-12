@@ -83,6 +83,10 @@ Documenation will be provided once all core libraries are created.
 
     There are a number of typedefs in Ninetails and they are an absolute must to use.
 
+- **[Window API](./doc/WINDOW_API.md)**
+
+    The window API allows for the creation of a window viewport.
+
 # License
 
 Copyright (c) 2024 Christopher DeJong / magictrick-dev on GitHub
