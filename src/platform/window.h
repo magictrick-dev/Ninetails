@@ -84,6 +84,8 @@
 
 b32 window_initialize(ccptr title, i32 width, i32 height, b32 show);
 void window_process_events();
+b32 window_should_close();
+void window_close();
 
 /*
 void window_set_title(ccptr title);
@@ -112,9 +114,6 @@ i32 window_get_height();
 ccptr window_get_title();
 void window_get_size(i32 *width, i32 *height);
 void window_get_position(i32 *x, i32 *y);
-
-b32 window_should_close();
-void window_close();
 
 b32 window_is_open();
 b32 window_is_borderless_fullscreen();

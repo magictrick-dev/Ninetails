@@ -16,6 +16,7 @@ wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdS
 #   if defined(NX_DEBUG_CONSOLE)
         AllocConsole();
         freopen("CONOUT$", "w", stdout);
+        freopen("CONIN$", "r", stdin);
 #   endif
 
     // --- Startup Preamble ----------------------------------------------------
@@ -81,6 +82,11 @@ wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdS
         printf("-- Application main returned a non-zero return code.\n");
         return 1;
     }
+
+#   if defined(NX_DEBUG_CONSOLE)
+        printf("-- Press any key to continue.\n");
+        getch();
+#   endif
 
     return 0;
 }

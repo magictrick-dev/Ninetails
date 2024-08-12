@@ -2,6 +2,7 @@
 #include <core/arena.h>
 
 static memory_arena primary_arena;
+static b32 runtime_flag;
 
 b32 
 runtime_init(buffer heap)
@@ -23,15 +24,19 @@ b32
 runtime_main(buffer heap)
 {
 
-
-    while (true)
+    // Standard runtime loop.
+    runtime_flag = true;
+    while (runtime_flag == true)
     {
+        
+        window_process_events();
+        if (window_should_close()) break;
 
     }
 
+    window_close();
 
-    // Since runtime_main is a proxy for main, we return 0 for success here.
-    return 0;
+    return 0; // Return zero for success here.
 
 }
 

@@ -11,6 +11,8 @@ typedef struct window_state
     b32 is_maximized;
     b32 is_focused;
     b32 is_resizable;
+    b32 is_visible;
+    b32 quit_received;
 
     HWND main_window_handle;
     HWND ghost_window_handle;
@@ -131,6 +133,13 @@ window_initialize(ccptr title, i32 width, i32 height, b32 show)
     state->is_maximized         = false;
     state->is_focused           = true;
     state->is_resizable         = true;
+    state->is_visible           = show;
+    state->quit_received        = false;
+
+    if (show == true)
+    {
+        ShowWindow(main_window_handle, SW_SHOWNORMAL);
+    }
 
     SetWindowTextA(main_window_handle, title);
     
@@ -142,15 +151,36 @@ void
 window_process_events()
 {
 
+    window_state *state = get_window_state();
+
     // Process all events for the current thread.
     MSG message;
     while (PeekMessage(&message, (HWND)-1, 0, 0, PM_REMOVE))
     {
-        // Do some work here?
+
     }
 
 }
 
+b32
+window_should_close()
+{
+
+    window_state *state = get_window_state();
+    b32 should_close = state->quit_received;
+    return should_close;
+
+}
+
+void
+window_close()
+{
+    
+    window_state *state = get_window_state();
+    SendMessageW(state->ghost_window_handle, UD_DESTROY_WINDOW, 0, 0);
+    state->main_window_handle = NULL;
+
+}
 
 // --- Win32 Backend API Functions ---------------------------------------------
 //
@@ -198,8 +228,8 @@ wGhostWindowProc(HWND window, UINT message, WPARAM w_param, LPARAM l_param)
         {
 
             // A request to destroy the window is made.
-            HWND window_handle = (HWND)w_param;
-            DestroyWindow(window_handle);
+            window_state *state = get_window_state();
+            DestroyWindow(state->main_window_handle);
             break;
 
         };
@@ -262,12 +292,27 @@ LRESULT CALLBACK
 wMainWindowProc(HWND window, UINT message, WPARAM w_param, LPARAM l_param)
 {
 
+    window_state *state = get_window_state();
+
     LRESULT ret_result = 0;   
     //ImGui_ImplWin32_WndProcHandler(window, message, w_param, l_param);
 
     switch (message)
     {
-        
+
+        case WM_CLOSE:
+        {
+
+            state->quit_received++;
+            printf("-- Close event received from user, times invoked: %d.\n", state->quit_received);
+
+            // If the x-button was ignored more than 3 times, we messed something up.
+            NX_PEDANTIC_ASSERT(state->quit_received <= 4);
+
+        } break;
+
+
+
 /*
         case WM_CREATE:
         {
