@@ -1,4 +1,4 @@
-<p align="center"><a href="https://www.vecteezy.com"><img src="./doc/display.jpg" style="display: inline-text;" width="256px" /></a></p>
+<p align="center"><a href="https://www.vecteezy.com"><img src="./doc/display.svg" style="display: inline-text;" height="300px" /></a></p>
 
 # Ninetails Game Engine
 
