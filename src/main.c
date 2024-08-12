@@ -2,6 +2,7 @@
 #include <core/memoryops.h>
 #include <platform/system.h>
 #include <platform/filesystem.h>
+#include <platform/window.h>
 #include <engine/runtime.h>
 
 #if defined(_WIN32)
@@ -86,6 +87,7 @@ wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdS
 
 #include <platform/win32/system.c>
 #include <platform/win32/filesystem.c>
+#include <platform/win32/window.c>
 
 #else
 #   error "Platform has not been defined."

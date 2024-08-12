@@ -19,7 +19,10 @@
 // Once per frame, inspect window_should_close(). If this value returns true, you
 // should close the window gracefully. Typically, you will want to break from your
 // main loop and *then* use window_close() so that you don't accidentally invoke
-// window behaviors on an otherwise invalid window handle.
+// window behaviors on an otherwise invalid window handle. Do this operation *after*
+// you have run window_process_events() so that any messages that potentially request
+// the window to close are handled before this. (Also, it ensures that input is
+// fed at the start of a frame rather than before.)
 //
 // Do *not* cache anything beyond a single frame. The reason is fairly obvious,
 // but if it isn't, the state of the window can be freely modified by the user
@@ -32,7 +35,23 @@
 // as you want, but no one *wants* the window to ignore you (or even worse, close very
 // slowly). The engine is designed so that you should be able to close almost immediately.
 //
+// Here is the ideal format to handle the window:
 //
+//      if (!window_initialize("My Window", 640, 480, true)) return 1;
+//
+//      b32 runtime_flag = true;
+//      while (runtime_flag == true)
+//      {
+//          window_process_events();
+//          if (window_should_close()) break;
+//      }
+//
+//      window_close();
+//      return 0;
+//
+// 
+// The code should be pretty straight forward to use on the front-end and doesn't
+// require much setup work beyond placing the functions in their proper order.
 //
 // --- Software Rendering to the Window ----------------------------------------
 //
@@ -63,23 +82,30 @@
 // and faster blitting.)
 //
 
-void window_initialize(ccptr title, i32 width, i32 height, b32 show);
+b32 window_initialize(ccptr title, i32 width, i32 height, b32 show);
+void window_process_events();
+
+/*
 void window_set_title(ccptr title);
 void window_set_size(i32 width, i32 height);
 void window_set_visibility(b32 hide);
 void window_set_maximization(b32 enable);
 void window_set_borderless_fullscreen(b32 enable);
 void window_set_resizable(b32 enable);
+*/
 
 // TODO(Chris): We will revisit this once we have everything else working as intended.
 //              Software rendering will be explored once a 2D hardware renderer is
 //              built and ready.
 
+/*
 u32 window_get_pixel(i32 x, i32 y);
 void window_set_pixel(i32 x, i32 y);
 void window_set_bitmap(image bitmap, u32 offset_x, u32 offset_y);
 void window_set_fill(u8 r, u8 g, u8 b);
+*/
 
+/*
 vptr window_get_handle();
 i32 window_get_width();
 i32 window_get_height();
@@ -99,5 +125,6 @@ b32 window_is_resizable();
 b32 window_is_visible();
 
 void window_swap_buffers();
+*/
 
 #endif
