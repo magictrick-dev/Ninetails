@@ -99,7 +99,7 @@ void    window_set_title(ccptr title);
 void    window_set_size(i32 width, i32 height);
 void    window_set_maximization(b32 enable);
 void    window_set_resizable(b32 enable);
-void    window_set_visibility(b32 hide);
+void    window_set_visibility(b32 enable);
 void    window_set_borderless_fullscreen(b32 enable, i32 exit_width, i32 exit_height);
 
 b32     window_is_open();

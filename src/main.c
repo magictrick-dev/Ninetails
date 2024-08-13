@@ -1,13 +1,20 @@
+// --- Windows Entry Point -----------------------------------------------------
+//
+// The Windows entry point is the black sheep of entry-points since we are forced
+// to use a special entry point function and must manually reallocate the debug
+// console. Other than that, it's pretty normal.
+//
+
+#if defined(_WIN32)
+#include <windows.h>
+#include <stdio.h>
 #include <core/definitions.h>
 #include <core/memoryops.h>
 #include <platform/system.h>
 #include <platform/filesystem.h>
 #include <platform/window.h>
+#include <platform/opengl.h>
 #include <engine/runtime.h>
-
-#if defined(_WIN32)
-#include <windows.h>
-#include <stdio.h>
 
 int WINAPI 
 wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
@@ -94,6 +101,7 @@ wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdS
 #include <platform/win32/system.c>
 #include <platform/win32/filesystem.c>
 #include <platform/win32/window.c>
+#include <platform/win32/opengl.c>
 
 #else
 #   error "Platform has not been defined."
