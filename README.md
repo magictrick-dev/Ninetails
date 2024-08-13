@@ -1,11 +1,13 @@
 <p align="center"><a href="https://www.vecteezy.com"><img src="./doc/display.svg" style="display: inline-text;" height="300px" /></a></p>
 
 Ninetails is a game engine targeted towards indie game developers and hobbyists alike.
-What separates Ninetails from general-purpose game engines is that it targets developers who
-want deeper control over how their engine behaves. This is accomplished by presenting a
-set of low-level platform APIs which can be used to develop higher order game engine components.
-Such components are provided for use, but are not required to develop with Ninetails. For those who
-want a fresh project but do not want to trudge through the grunt work of developing
+What separates Ninetails from general-purpose game engines like Unity or Godot is that
+it targets developers who want deeper control over how their engine behaves. This is
+accomplished by presenting a set of low-level platform APIs which can be used to develop
+higher order game engine components. Such components are provided for use, but are not
+required to develop with Ninetails.
+
+For those who want a fresh project but do not want to trudge through the grunt work of developing
 the platform abstractions needed to work with the hardware will be right at home with
 this game engine since most of that work is done for you.
 
@@ -17,9 +19,9 @@ you want is entirely dependent on how much of the engine you intend to use. You 
 in theory, develop your own engine libraries and with the provided platform abstractions to
 tailor fit the engine that fits your needs.
 
-Ninetails is also free to use with the MIT license. If you intend to use Ninetails,
-in a commercial project, *please* credit all major contributors in the credits of the
-game. You are not required to do so, but it would be very kind of you to do so.
+Ninetails is also free to use with the MIT license. Although it isn't a requirement of the
+license agreement, if you intend to use Ninetails in a commercial project, *please* credit
+all major contributors in the credits of the game.
 
 # Getting Started
 
@@ -29,7 +31,7 @@ Developing a game with Ninetails is not like Unity, Godot, or Unreal. The game
 is designed to be directly coupled with the engine. There is no "create new project" button. Simply
 clone the project and begin programming.
 
-In order to main modularity between Ninetails and your game, organize and modify
+In order to maintain modularity between Ninetails and your game, organize and modify
 `src/engine/runtime.h` and `src/engine/runtime.c` such that it forwards off your
 render and update functionality to a separate implementation file. I recommend creating
 a folder like `src/game/` which contains all your game source files. This indirection
@@ -41,51 +43,93 @@ APIs found in `src/platform/`. This is absolutely fine to do, but be warned that
 updates from the project repository will become difficult. You should expect API
 breaking changes in the platform APIs pretty regularly.
 
-# Building the Engine from Source
+# Building the Project
 
-In order to build Ninetails, you will need to have Visual Studio installed with
-Desktop Development with C++ installed. You need to have access to the `cl.exe`
-compiler by setting VCVars or launching the developer console (prior option preferred).
-Run the build script, which is automatically configured with all the options necessary
-to compile the project at the root directory.
+This project doesn't use a build utility such as CMake. This is primarily because directly
+invoking the compiler is way faster than using some intermediate build tool. You should
+be comfortable modifying the build scripts for each respective platform. Documentation
+will be available to describe how to do go about this for each platform.
 
-Output files are stored in `bin/*`, including the executable. You will need to create
-this folder or modify the build file to accomodate a different directory.
+### Windows
 
-No other external dependencies required. Everything is provided in source.
+In order to build Ninetails on Windows, you will need to install Visual Studio with Desktop
+Development with C++ installed. Once you have it installed, you will need access to the `cl`
+compiler by setting the VC runtime variables in your path. This can be accomplished in a
+number of ways, but the easiest way is to run the Developer Command Prompt or by running
+the `vcvars64.bat` file located in the `VC/Auxiliary/Build/` folder of your Visual Studio
+install location in Command Prompt. You can also manually add `cl.exe` to your environment PATH.
 
-# Contributing to the Engine
+Once you have access to the `cl.exe` compiler, ensure that it is the 64-bit
+version of the compiler. If you do not, the project may fail to compile or fail to run correctly.
 
-If you would like to contribute to the project, submit a pull request detailing
-the changes made to the engine. Please keep pull requests single-featured. While
-it isn't required, it would be helpful to match the coding style of the project.
-If you're unsure, browse `src` header and source files to get a basic idea.
+This project comes equipped with build scripts for you, `build.ps1` and `build.bat` for PowerShell
+and Command Prompt respectively. These scripts merely contain the compiler command that builds the
+project for you. By default, build output is placed in `bin`. If this folder doesn't exist when you
+clone the project, then you may need to create this folder.
 
-For bug fixes, please make sure to adequately describe the bug that is being fixed, along
-with appropriate description of how it occurs and the steps reproduce. If I am not
-able to reproduce the bug on my system, then a screenshot/video of the bug would
-suffice as an example to see what is happening.
+### Linux
 
-*All contributions to the game engine must not use the standard library outside
-of what is already included. This includes* `malloc()/free()`. Ninetails uses
-a custom allocator and provides a number of utilities to make memory management
-easy and intuitive.
+Linux support is currently TBD.
+
+### MacOSX
+
+Mac support is currently TBD.
+
+# Project Contributions
+
+Contributions are welcome, please read below on how to handle each contribution.
+
+### Contributing Features
+
+Feature contributions require considerable review.
+
+1.  Submit a pull request that outlines what your feature is and how it works. Your
+    pull request should contain only one feature at a time. Engine features must be
+    designed to be opt-in. Platform features should be well isolated from other
+    platform API features.
+
+2.  A review of the feature will be done to ensure that the above guidelines are followed.
+    There are no guarantees that your feature will be added.
+
+3.  If your feature is approved, it will be merged into the project.
+
+### Contributing Bugfixes
+
+If you spot a bug with the engine, please provide the bug fix.
+
+1.  Submit a pull request that outlines the bug, what you did to fix it, and the steps
+    to reproduce this bug. The more detailed you are, the easier it is to review.
+
+2.  A review of the bugfix will be done. If the bug can not be reproduced by the maintainer,
+    then a discussion will be opened up to find a way to reproduce it. If the bug can not
+    be reproduced, the bug fix may not be approved.
+
+3.  If your bugfix is approved, it will be merged into the project.
+
+### Contributing Documentation
+
+This is the easiest way to contribute to the project.
+
+1.  Submit a pull request with your documentation.
+
+2.  A review of the formatting and changes.
+
+3.  If approved, it will be merged into the project.
 
 # Documentation
 
-Documenation will be provided once all core libraries are created.
+Documenation is a work in progress and are tentative in the early development phase
+of the project.
 
-- **[Ninetails Build System](./doc/BUILD_SYSTEM.md)**
+### **[Type System](./doc/TYPE_SYSTEM.md)**
 
-    Learn about the project layout, how source files are included, and platform-specific APIs.
+A provided set of typedefs that are used heavily throughout the source code.
+They are designed to be explicit and intuitive over the default C-types. Use these
+types over the C-types if you intend to contribute to the project.
 
-- **[Ninetails Type System](./doc/TYPE_SYSTEM.md)**
+### **[Window API](./doc/WINDOW_API.md)**
 
-    There are a number of typedefs in Ninetails and they are an absolute must to use.
-
-- **[Window API](./doc/WINDOW_API.md)**
-
-    The window API allows for the creation of a window viewport.
+This is the primary API for constructing a window and the associated utilities to manage it. Currently, this API only allows for a single primary window to be shown.
 
 # License
 
