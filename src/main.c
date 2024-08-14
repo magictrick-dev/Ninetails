@@ -16,6 +16,7 @@
 #include <platform/filesystem.h>
 #include <platform/window.h>
 #include <platform/opengl.h>
+#include <platform/input.h>
 
 #include <engine/runtime.h>
 
@@ -119,6 +120,7 @@ wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdS
 #include <platform/win32/filesystem.c>
 #include <platform/win32/window.c>
 #include <platform/win32/opengl.c>
+#include <platform/win32/inputhandler.c>
 
 #else
 #   error "Platform has not been defined."
