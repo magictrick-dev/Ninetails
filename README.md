@@ -129,7 +129,13 @@ types over the C-types if you intend to contribute to the project.
 
 ### **[Window API](./doc/WINDOW_API.md)**
 
-This is the primary API for constructing a window and the associated utilities to manage it. Currently, this API only allows for a single primary window to be shown.
+This is the primary API for constructing a window and the associated utilities to manage it.
+Currently, this API only allows for a single primary window to be shown.
+
+### **[OpenGL API](./doc/OPENGL_API.md)**
+
+The OpenGL API is the system hooks to establish a hardware rendering context and
+related helpers to make working with OpenGL a little easier.
 
 # License
 
