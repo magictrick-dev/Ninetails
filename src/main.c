@@ -80,13 +80,27 @@ wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdS
 
     if (!runtime_init(heap_buffer))
     {
+
         printf("-- Application initialization failed.\n");
+
+#       if defined(NX_DEBUG_CONSOLE)
+            printf("-- Press any key to continue.\n");
+            getch();
+#       endif
+
         return 1;
     }
 
     if (runtime_main(heap_buffer))
     {
+
         printf("-- Application main returned a non-zero return code.\n");
+
+#       if defined(NX_DEBUG_CONSOLE)
+            printf("-- Press any key to continue.\n");
+            getch();
+#       endif
+
         return 1;
     }
 

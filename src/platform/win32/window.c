@@ -21,6 +21,7 @@ typedef struct window_state
     b32 was_focused;
     b32 was_moved;
 
+    HDC main_window_device_context;
     HWND main_window_handle;
     HWND ghost_window_handle;
     HANDLE ghost_thread_sync;
@@ -144,6 +145,8 @@ window_initialize(ccptr title, i32 width, i32 height, b32 show)
     state->is_visible           = show;
     state->quit_received        = false;
 
+    state->main_window_device_context = GetDC(main_window_handle);
+
     if (show == true)
     {
         ShowWindow(main_window_handle, SW_SHOWNORMAL);
@@ -172,6 +175,13 @@ window_process_events()
 
     }
 
+}
+
+void
+window_swap_buffers()
+{
+    window_state *state = get_window_state();
+    SwapBuffers(state->main_window_device_context);
 }
 
 b32

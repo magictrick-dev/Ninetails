@@ -1,3 +1,5 @@
+#include <platform/opengl.h>
+#include <platform/window.h>
 #include <core/definitions.h>
 #include <core/arena.h>
 
@@ -14,6 +16,23 @@ runtime_init(buffer heap)
     // Create the window, automatically show it to the user after it is made.
     b32 window_created = window_initialize("Ninetails Game Engine", 1280, 720, false);
     if (window_created == false) return false;
+
+    // When the window is created, we can now initialize a render context.
+    if (!create_opengl_render_context(window_get_handle())) return false;
+    if (!set_opengl_vertical_sync(1))
+    {
+        printf("-- Unable to set swap interval to desired value.\n");
+    }
+
+    // Set some OpenGL context stuff.
+    glEnable(GL_DEPTH_TEST);
+
+    // Preset values, swap frame afterwards to show it.
+    glViewport(0, 0, window_get_width(), window_get_height());
+    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    window_swap_buffers();
 
     // Return true to indicate that init succeeded.
     return true;
@@ -33,30 +52,19 @@ runtime_main(buffer heap)
     while (runtime_flag == true)
     {
         
+        // Pre-loop stuff.
         window_process_events();
         if (window_should_close()) break;
 
-        if (window_did_size_change())
-        {
-            i32 width, height;
-            window_get_size(&width, &height);
-            printf("-- Window size changed to %i, %i.\n", width, height);
-        }
+        // Rendering pre-frame stuff.
+        glViewport(0, 0, window_get_width(), window_get_height());
+        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-        if (window_did_focus_change())
-        {
-            b32 is_in_focus = window_is_focused();
-            printf("-- Window focus changed to %i.\n", is_in_focus);
-        }
-
-        if (window_did_position_change())
-        {
-
-            i32 x, y;
-            window_get_position(&x, &y);
-            printf("-- Window position changed to %i, %i.\n", x, y);
-
-        }
+        // Swap the buffers at the end.
+        window_swap_buffers();
+        
         
     }
 
