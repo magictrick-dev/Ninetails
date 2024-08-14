@@ -8,12 +8,15 @@
 #if defined(_WIN32)
 #include <windows.h>
 #include <stdio.h>
+
 #include <core/definitions.h>
 #include <core/memoryops.h>
+
 #include <platform/system.h>
 #include <platform/filesystem.h>
 #include <platform/window.h>
 #include <platform/opengl.h>
+
 #include <engine/runtime.h>
 
 int WINAPI 

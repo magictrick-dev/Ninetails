@@ -1,3 +1,5 @@
+#include <platform/system.h>
+#include <platform/filesystem.h>
 #include <platform/opengl.h>
 #include <platform/window.h>
 #include <core/definitions.h>
