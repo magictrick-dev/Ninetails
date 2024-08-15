@@ -225,8 +225,6 @@ window_process_events()
             case WM_KEYDOWN:
             {
 
-                if (message.wParam & (1 << 30)) break;
-
                 u32 mapping = convert_keycode((u32)message.wParam);
 
                 if (!previous_frame->keyboard[mapping].is_down) 
