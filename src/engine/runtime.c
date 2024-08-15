@@ -1,3 +1,4 @@
+#include <platform/input.h>
 #include <platform/system.h>
 #include <platform/filesystem.h>
 #include <platform/opengl.h>
@@ -57,6 +58,28 @@ runtime_main(buffer heap)
         // Pre-loop stuff.
         window_process_events();
         if (window_should_close()) break;
+
+        // Test keyboard functionality.
+        if (input_key_is_pressed(NxKeyA))
+        {
+            printf("-- The A key was pressed.\n");
+        }
+
+        else if (input_key_is_released(NxKeyA))
+        {
+            printf("-- The A key was released.\n");
+        }
+
+        // Test mouse functionality.
+        if (input_mouse_button_is_pressed(NxMouseLeft))
+        {
+            printf("-- The left mouse button was pressed.\n");
+        }
+
+        else if (input_mouse_button_is_released(NxMouseLeft))
+        {
+            printf("-- The left mouse button was released.\n");
+        }
 
         // Rendering pre-frame stuff.
         glViewport(0, 0, window_get_width(), window_get_height());

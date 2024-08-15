@@ -121,6 +121,7 @@ wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdS
 #include <platform/win32/window.c>
 #include <platform/win32/opengl.c>
 #include <platform/win32/inputhandler.c>
+#include <platform/win32/input.c>
 
 #else
 #   error "Platform has not been defined."

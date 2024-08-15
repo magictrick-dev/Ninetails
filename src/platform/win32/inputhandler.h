@@ -8,7 +8,7 @@ typedef struct digital_input
     b32 is_down;
     b32 is_pressed;
     b32 is_released;
-    u64 time_stamp;
+    u64 time;
 } digital_input;
 
 typedef struct analog_input

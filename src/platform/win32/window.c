@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <platform/window.h>
+#include <platform/win32/inputhandler.h>
 
 typedef struct window_state
 {
@@ -52,6 +53,11 @@ window_creation_context
 
 #define UD_CREATE_WINDOW    (WM_USER + 0x0042)
 #define UD_DESTROY_WINDOW   (WM_USER + 0x0043)
+#define UD_KEYBOARD_DOWN    (WM_USER + 0x00F0)
+#define UD_KEYBOARD_UP      (WM_USER + 0x00F1)
+#define UD_MOUSE_DOWN       (WM_USER + 0x00F2)
+#define UD_MOUSE_UP         (WM_USER + 0x00F3)
+#define UD_MOUSE_SCROLL     (WM_USER + 0x00F4)
 
 static inline window_state* get_window_state() { static window_state ws = {0}; return &ws; };
 
@@ -75,6 +81,10 @@ window_initialize(ccptr title, i32 width, i32 height, b32 show)
     NX_PEDANTIC_ASSERT(state->ghost_window_handle == NULL);
     NX_PEDANTIC_ASSERT(state->main_window_handle == NULL);
     NX_PEDANTIC_ASSERT(state->ghost_thread_initialized == FALSE);
+
+    // The input handler requires this to be initialized before the window itself
+    // since the window is what sends keyboard and mouse messages.
+    initialize_input_states();
 
     // Essentially, we launch a separate thread that contains a ghost window
     // procedure that we send window create messages to. This will force the
@@ -168,10 +178,177 @@ window_process_events()
     state->was_focused = false;
     state->was_moved = false;
 
+    // Swap the input frames.
+    swap_input_states();
+
+    // Update the input states.
+    input_state *previous_frame = get_previous_input_state();
+    input_state *current_frame = get_current_input_state();
+    for (u64 idx = 0; idx < 256; ++idx)
+    {
+
+        if (current_frame->keyboard[idx].is_released)
+            current_frame->keyboard[idx].time = system_timestamp();
+        if (current_frame->keyboard[idx].is_pressed)
+            current_frame->keyboard[idx].time = system_timestamp();
+
+        current_frame->keyboard[idx].is_released = false;
+        current_frame->keyboard[idx].is_pressed = false;
+
+    }
+
+    for (u64 idx = 0; idx < 8; ++idx)
+    {
+
+        if (current_frame->mouse[idx].is_released)
+            current_frame->mouse[idx].time = system_timestamp();
+        if (current_frame->mouse[idx].is_pressed)
+            current_frame->mouse[idx].time = system_timestamp();
+
+        current_frame->mouse[idx].is_released = false;
+        current_frame->mouse[idx].is_pressed = false;
+
+    }
+
     // Process all events for the current thread.
     MSG message;
-    while (PeekMessage(&message, (HWND)-1, 0, 0, PM_REMOVE))
+    while (PeekMessage(&message, 0, 0, 0, PM_REMOVE))
     {
+
+        switch (message.message)
+        {
+
+            case WM_KEYDOWN:
+            {
+
+                //if (message.wParam & (1 << 30)) break;
+
+                u32 mapping = convert_keycode((u32)message.wParam);
+
+                if (!previous_frame->keyboard[mapping].is_down) 
+                {
+                    current_frame->keyboard[mapping].is_pressed = true;
+                }
+
+                current_frame->keyboard[mapping].is_down = true;
+
+            } break;
+
+            case WM_KEYUP:
+            {
+
+                u32 mapping = convert_keycode((u32)message.wParam);
+
+                if (previous_frame->keyboard[mapping].is_down)
+                {
+                    current_frame->keyboard[mapping].is_released = true;
+                }
+
+                current_frame->keyboard[mapping].is_down = false;
+
+                break;
+
+            } break;
+
+            case WM_MBUTTONDOWN:
+            case WM_RBUTTONDOWN:
+            case WM_LBUTTONDOWN:
+            {
+                
+                if (message.wParam == MK_LBUTTON)
+                {
+
+                    u32 mapping = NxMouseLeft;
+
+                    if (!previous_frame->mouse[mapping].is_down) 
+                    {
+                        current_frame->mouse[mapping].is_pressed = true;
+                    }
+
+                    current_frame->mouse[mapping].is_down = true;
+
+                }
+
+                else if (message.wParam == MK_RBUTTON)
+                {
+
+                    u32 mapping = NxMouseRight;
+
+                    if (!previous_frame->mouse[mapping].is_down) 
+                    {
+                        current_frame->mouse[mapping].is_pressed = true;
+                    }
+
+                    current_frame->mouse[mapping].is_down = true;
+
+                }
+
+                else if (message.wParam == MK_MBUTTON)
+                {
+
+                    u32 mapping = NxMouseMiddle;
+
+                    if (!previous_frame->mouse[mapping].is_down) 
+                    {
+                        current_frame->mouse[mapping].is_pressed = true;
+                    }
+
+                    current_frame->mouse[mapping].is_down = true;
+
+                }
+
+            } break;
+
+            case WM_MBUTTONUP:
+            {
+
+                u32 mapping = NxMouseMiddle;
+
+                if (previous_frame->mouse[mapping].is_down)
+                {
+                    current_frame->mouse[mapping].is_released = true;
+                }
+
+                current_frame->mouse[mapping].is_down = false;
+
+            } break;
+
+            case WM_RBUTTONUP:
+            {
+
+                u32 mapping = NxMouseRight;
+
+                if (previous_frame->mouse[mapping].is_down)
+                {
+                    current_frame->mouse[mapping].is_released = true;
+                }
+
+                current_frame->mouse[mapping].is_down = false;
+
+            } break;
+
+            case WM_LBUTTONUP:
+            {
+
+                u32 mapping = NxMouseLeft;
+
+                if (previous_frame->mouse[mapping].is_down)
+                {
+                    current_frame->mouse[mapping].is_released = true;
+                }
+
+                current_frame->mouse[mapping].is_down = false;
+
+            } break;
+
+            case WM_MOUSEWHEEL:
+            {
+
+                //int scroll = GET_WHEEL_DELTA_WPARAM(w_param);
+
+            } break;
+
+        }
 
     }
 
@@ -681,27 +858,21 @@ wMainWindowProc(HWND window, UINT message, WPARAM w_param, LPARAM l_param)
 
         } break;
 
+        case WM_KEYDOWN:
+        case WM_KEYUP:
+        case WM_MBUTTONDOWN:
+        case WM_RBUTTONDOWN:
+        case WM_LBUTTONDOWN:
+        case WM_MBUTTONUP:
+        case WM_RBUTTONUP:
+        case WM_LBUTTONUP:
+        {
+            PostThreadMessageW(state->main_thread_identifier, message, w_param, l_param);
+            break;
+        };
+
 
 /*
-        case WM_KEYDOWN:
-        {
-            window_context *context = (window_context*)GetWindowLongPtrA(window, GWLP_USERDATA);
-
-            u32 key_code = w_param;
-            PostThreadMessage(context->ghost.main_thread_identifier, UD_KEYBOARD_DOWN,
-                (WPARAM)context, (LPARAM)key_code);
-            break;
-        };
-
-        case WM_KEYUP:
-        {
-            window_context *context = (window_context*)GetWindowLongPtrA(window, GWLP_USERDATA);
-
-            u32 key_code = w_param;
-            PostThreadMessage(context->ghost.main_thread_identifier, UD_KEYBOARD_UP, 
-                    (WPARAM)context, (LPARAM)key_code);
-            break;
-        };
 
         case WM_MBUTTONDOWN:
         case WM_RBUTTONDOWN:

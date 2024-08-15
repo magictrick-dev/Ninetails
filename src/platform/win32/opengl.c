@@ -29,7 +29,7 @@ create_opengl_render_context(vptr window_handle)
     HDC device_context = GetDC(window_handle);
 
     // Set the pixel format descriptor hoopla.
-    PIXELFORMATDESCRIPTOR pfd   = {};
+    PIXELFORMATDESCRIPTOR pfd   = {0};
     pfd.nSize                   = sizeof(pfd);
     pfd.nVersion                = 1;
     pfd.dwFlags                 = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;

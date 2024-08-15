@@ -1,3 +1,4 @@
+#include <platform/system.h>
 #include <platform/win32/inputhandler.h>
 
 static input_state states[2];
@@ -28,6 +29,8 @@ swap_input_states()
     input_state *temp = current_state;
     current_state = previous_state;
     previous_state = temp;
+
+    *current_state = *previous_state;
     return;
 
 }
