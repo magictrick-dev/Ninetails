@@ -16,9 +16,109 @@ in `src/platform/input.h` as macro definitions which correspond to their literal
 The API for digital keys follows a simple paradigm of pressed, released, and down.
 Pressed and released are single fire functions which are true only when a key is
 considered pressed or released *after* the `window_process_events()` function is called
-for that frame. The timing of button presses are difficult to manage without near
-kernel level access, so the best timing that Ninetails offers is in-frame timing.
-This means there is a minor gap of time between when the event is registered via the
-kernel and when the messages are finally processed by `window_process_events()`. Typically,
-this isn't very long, but it is still frame-bound.
+for that frame. The timing of button presses are based on when `window_process_events()`
+occur, leaving a small gap of time between when the event was issued by the OS and when
+the user finally calls `window_process_events()`. This time is generally neglible and the
+latency is pretty decent for how trivial the setup works.
 
+There is a slight problem with the way Windows handles key events. Since Ninetails relies
+on the window procedure to capture input messages, events are not sent to the window if
+it is not the currently focused window. This includes key and mouse events. The consequence
+of this is a "sticky key" behavior when a key is pressed, the window leaves focus, the key
+is released, and then the window regains focus. The release event is never caught and it is
+as if the key is still treated as "down" by the engine. You will find this behavior in a lot
+of games. There is a simple fix for this:
+
+```C
+while (game_is_running)
+{
+
+    // ...
+
+    window_process_events();
+    if (window_should_close()) break;
+
+    // Detect focus change and if out of focus, release all downed keys.
+    if (window_did_focus_change() && !window_is_focused())
+    {
+        input_release_all();
+    }
+
+    // ... 
+
+}
+```
+
+## Documentation
+
+Keys/buttons are considered digital inputs, which contain a `pressed`, `released`, and `down` state.
+These states are what is returned to the user. The `pressed` and `released` states are frame-dependent
+states which get reset and triggered *after* `window_process_events()` and are denoted as single-fire
+events.
+
+```C
+void input_release_all();
+```
+
+-   Releases all inputs that currently down to up, also triggering `released` for that key.
+
+```C
+bool input_key_is_pressed(u32 key_code);
+```
+
+-   Returns true if the key went down on that frame.
+
+```C
+bool input_key_is_released(u32 key_code);
+```
+
+-   Returns true if the key went up on that frame.
+
+```C
+bool input_key_is_down(u32 key_code);
+```
+
+-   Returns true if the key is currently down. Inversely, can be used to check
+    if the key is up.
+
+```C
+r64 input_key_time_down(u32 key_code);
+```
+
+-   Returns the duration, in seconds, that the key has been down.
+
+```C
+r64 input_key_time_up(u32 key_code);
+```
+
+-   Returns the duration, in seconds, that the key has been up.
+
+```C
+bool input_mouse_button_is_pressed(u32 mouse_code);
+```
+
+-   Returns true if the mouse button went down on that frame.
+
+```C
+bool input_mouse_button_is_released(u32 mouse_code);
+```
+
+-   Returns true if the mouse button went up on that frame.
+
+```C
+bool input_mouse_button_is_down(u32 mouse_code);
+```
+-   Returns true if the mouse button is currently down. Inversely, can be used to check
+    if the mouse button is up.
+
+```C
+r64 input_mouse_button_time_down(u32 mouse_code);
+```
+
+-   Returns the duration, in seconds, that the mouse button has been down.
+
+```C
+r64 input_mouse_button_time_up(u32 mouse_code);
+```
+
+-   Returns the duration, in seconds, that the mouse button has been up.

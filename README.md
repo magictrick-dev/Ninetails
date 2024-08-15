@@ -121,23 +121,21 @@ This is the easiest way to contribute to the project.
 Documenation is a work in progress and are tentative in the early development phase
 of the project.
 
-### **[Type System](./doc/TYPE_SYSTEM.md)**
+### **[Platform: Type System](./doc/TYPE_SYSTEM.md)**
 
 A provided set of typedefs that are used heavily throughout the source code.
-They are designed to be explicit and intuitive over the default C-types. Use these
-types over the C-types if you intend to contribute to the project.
 
-### **[Window API](./doc/WINDOW_API.md)**
+### **[Platform: Window API](./doc/WINDOW_API.md)**
 
 This is the primary API for constructing a window and the associated utilities to manage it.
 Currently, this API only allows for a single primary window to be shown.
 
-### **[OpenGL API](./doc/OPENGL_API.md)**
+### **[Platform: OpenGL API](./doc/OPENGL_API.md)**
 
 The OpenGL API is the system hooks to establish a hardware rendering context and
 related helpers to make working with OpenGL a little easier.
 
-### **[Input API](./doc/INPUT_API.md)**
+### **[Platform: Input API](./doc/INPUT_API.md)**
 
 The input API provides the methods necessary to inspect the state of input, timing,
 and analog access to various controller based functionalities.
