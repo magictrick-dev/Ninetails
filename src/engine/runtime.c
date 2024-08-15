@@ -17,7 +17,7 @@ runtime_init(buffer heap)
     memory_arena_initialize(&primary_arena, heap.ptr, heap.size);
 
     // Create the window, automatically show it to the user after it is made.
-    b32 window_created = window_initialize("Ninetails Game Engine", 1280, 720, false);
+    b32 window_created = window_initialize("Ninetails Game Engine", 640, 480, false);
     if (window_created == false) return false;
 
     // When the window is created, we can now initialize a render context.
@@ -54,19 +54,29 @@ runtime_main(buffer heap)
     runtime_flag = true;
     while (runtime_flag == true)
     {
-        
+
         // Pre-loop stuff.
         window_process_events();
         if (window_should_close()) break;
 
+        // Prevents keys sticking when window focus changes.
+        if (window_did_focus_change() && !window_is_focused())
+        {
+            input_release_all();
+        }
+
         // Test keyboard functionality.
         if (input_key_is_pressed(NxKeyA))
         {
+            r64 time_released = input_key_time_up(NxKeyA);
+            printf("-- The A key was free for %fs.\n", time_released);
             printf("-- The A key was pressed.\n");
         }
 
         else if (input_key_is_released(NxKeyA))
         {
+            r64 time_down = input_key_time_down(NxKeyA);
+            printf("-- The A key was free for %fs.\n", time_down);
             printf("-- The A key was released.\n");
         }
 

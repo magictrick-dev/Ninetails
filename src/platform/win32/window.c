@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <platform/window.h>
+#include <platform/input.h>
 #include <platform/win32/inputhandler.h>
 
 typedef struct window_state
@@ -215,13 +216,16 @@ window_process_events()
     while (PeekMessage(&message, 0, 0, 0, PM_REMOVE))
     {
 
+        WPARAM w_param = message.wParam;
+        LPARAM l_param = message.lParam;
+
         switch (message.message)
         {
 
             case WM_KEYDOWN:
             {
 
-                //if (message.wParam & (1 << 30)) break;
+                if (message.wParam & (1 << 30)) break;
 
                 u32 mapping = convert_keycode((u32)message.wParam);
 
@@ -341,10 +345,40 @@ window_process_events()
 
             } break;
 
-            case WM_MOUSEWHEEL:
+            case WM_ACTIVATEAPP:
             {
 
-                //int scroll = GET_WHEEL_DELTA_WPARAM(w_param);
+                b32 is_active = (w_param == TRUE);
+                state->is_focused = is_active;
+                state->was_focused = true;
+
+            } break;
+
+            case WM_SIZE:
+            {
+
+                i32 width   = (0xFFFF & l_param);
+                i32 height  = (l_param >> 16);
+
+                if (w_param == SIZE_MINIMIZED)
+                {
+                    state->is_minimized = true;
+                }
+                else if (w_param == SIZE_MAXIMIZED)
+                {
+                    state->is_maximized = true;
+                }
+                else if (w_param == SIZE_RESTORED
+                        && state->known_width == 0
+                        && state->known_height == 0)
+                {
+                    state->is_minimized = false;
+                    state->is_maximized = false;
+                }
+
+                state->known_width = width;
+                state->known_height = height;
+                state->was_resized = true;
 
             } break;
 
@@ -807,46 +841,6 @@ wMainWindowProc(HWND window, UINT message, WPARAM w_param, LPARAM l_param)
 
         } break;
 
-        case WM_SIZE:
-        {
-
-            i32 width   = (0xFFFF & l_param);
-            i32 height  = (l_param >> 16);
-
-            if (w_param == SIZE_MINIMIZED)
-            {
-                state->is_minimized = true;
-            }
-            else if (w_param == SIZE_MAXIMIZED)
-            {
-                state->is_maximized = true;
-            }
-            else if (w_param == SIZE_RESTORED
-                    && state->known_width == 0
-                    && state->known_height == 0)
-            {
-                state->is_minimized = false;
-                state->is_maximized = false;
-            }
-
-            state->known_width = width;
-            state->known_height = height;
-            state->was_resized = true;
-
-        } break;
-
-        case WM_ACTIVATEAPP:
-        {
-
-            b32 is_active = (w_param == TRUE);
-            state->is_focused = is_active;
-            state->was_focused = true;
-
-            // Releases all active inputs when the window goes inactive.
-            //if (!is_active) input_release_all();
-
-        } break;
-
         case WM_MOVE:
         {
 
@@ -858,6 +852,8 @@ wMainWindowProc(HWND window, UINT message, WPARAM w_param, LPARAM l_param)
 
         } break;
 
+        case WM_SIZE:
+        case WM_ACTIVATEAPP:
         case WM_KEYDOWN:
         case WM_KEYUP:
         case WM_MBUTTONDOWN:

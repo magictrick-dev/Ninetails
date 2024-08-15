@@ -6,7 +6,13 @@ input_release_all()
 {
     input_state *current_frame = get_current_input_state();
     for (size_t idx = 0; idx < 256; ++idx)
-        current_frame->keyboard[idx].is_down = false;
+    {
+        if (current_frame->keyboard[idx].is_down = true)
+        {
+            current_frame->keyboard[idx].is_down = false;
+            current_frame->keyboard[idx].is_released = true;
+        }
+    }
 }
 
 bool 

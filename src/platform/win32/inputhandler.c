@@ -57,6 +57,19 @@ initialize_input_states()
     current_state = &states[0];
     previous_state = &states[1];
 
+    // Set the timestamps to a known initial value.
+    for (size_t idx = 0; idx < 256; ++idx)
+    {
+        current_state->keyboard[idx].time = system_timestamp();
+        previous_state->keyboard[idx].time = system_timestamp();
+    }
+
+    for (size_t idx = 0; idx < 8; ++idx)
+    {
+        current_state->mouse[idx].time = system_timestamp();
+        previous_state->mouse[idx].time = system_timestamp();
+    }
+
     virtual_map[0x00] = NxKeyNull;
     virtual_map[0x01] = NxKeyNull;
     virtual_map[0x02] = NxKeyNull;
