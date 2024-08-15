@@ -137,6 +137,11 @@ Currently, this API only allows for a single primary window to be shown.
 The OpenGL API is the system hooks to establish a hardware rendering context and
 related helpers to make working with OpenGL a little easier.
 
+### **[Input API](./doc/INPUT_API.md)**
+
+The input API provides the methods necessary to inspect the state of input, timing,
+and analog access to various controller based functionalities.
+
 # License
 
 Copyright (c) 2024 Christopher DeJong / magictrick-dev on GitHub
