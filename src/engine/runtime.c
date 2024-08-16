@@ -101,7 +101,7 @@ runtime_main(buffer heap)
 
         if (input_mouse_scrolled())
         {
-            i32 delta_x = input_mouse_scroll_delta_x();
+            r32 delta_x = input_mouse_scroll_delta_x();
             printf("-- Mouse scroll delta %f\n", delta_x);
         }
 

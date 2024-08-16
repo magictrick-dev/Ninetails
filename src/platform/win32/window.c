@@ -214,6 +214,8 @@ window_process_events()
 
     current_frame->mouse_position.moved = false;
     current_frame->mouse_wheelie = false;
+    current_frame->mouse_wheel.delta_x = 0.0;
+    current_frame->mouse_wheel.delta_y = 0.0;
 
     // Process all events for the current thread.
     MSG message;
