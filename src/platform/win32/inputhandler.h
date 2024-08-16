@@ -30,6 +30,8 @@ typedef struct input_state
 {
     digital_input keyboard[256];
     digital_input mouse[8];
+    analog_input mouse_wheel;
+    b32 mouse_wheelie;
     mouse_input mouse_position;
 } input_state;
 

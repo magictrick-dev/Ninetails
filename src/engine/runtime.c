@@ -99,6 +99,12 @@ runtime_main(buffer heap)
             printf("-- Mouse position moved %i %i, delta %i %i\n", x, y, dx, dy);
         }
 
+        if (input_mouse_scrolled())
+        {
+            i32 delta_x = input_mouse_scroll_delta_x();
+            printf("-- Mouse scroll delta %f\n", delta_x);
+        }
+
         // Rendering pre-frame stuff.
         glViewport(0, 0, window_get_width(), window_get_height());
         glClear(GL_COLOR_BUFFER_BIT);

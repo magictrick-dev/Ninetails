@@ -162,3 +162,21 @@ input_mouse_position_relative_delta(i32 *x, i32 *y)
 
 }
 
+r32 
+input_mouse_scroll_delta_x()
+{
+    input_state *current_frame = get_current_input_state();
+    r32 result = current_frame->mouse_wheel.delta_x;
+    return result;
+}
+
+b32 
+input_mouse_scrolled()
+{
+
+    input_state *current_frame = get_current_input_state();
+    b32 result = current_frame->mouse_wheelie;
+    return result;
+
+}
+

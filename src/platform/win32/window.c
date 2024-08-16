@@ -213,6 +213,7 @@ window_process_events()
     }
 
     current_frame->mouse_position.moved = false;
+    current_frame->mouse_wheelie = false;
 
     // Process all events for the current thread.
     MSG message;
@@ -394,6 +395,13 @@ window_process_events()
                 current_frame->mouse_position.delta_y =
                     (y - previous_frame->mouse_position.mouse_y);
                 current_frame->mouse_position.moved = true;
+            } break;
+
+            case WM_MOUSEWHEEL:
+            {
+                r32 scroll = (r32)GET_WHEEL_DELTA_WPARAM(w_param);
+                current_frame->mouse_wheel.delta_x = scroll;
+                current_frame->mouse_wheelie = true;
             } break;
 
         }
@@ -866,6 +874,7 @@ wMainWindowProc(HWND window, UINT message, WPARAM w_param, LPARAM l_param)
 
         } break;
 
+        case WM_MOUSEWHEEL:
         case WM_MOUSEMOVE:
         case WM_SIZE:
         case WM_ACTIVATEAPP:

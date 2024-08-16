@@ -20,6 +20,8 @@ b32 input_mouse_position_moved();
 void input_mouse_position_relative(i32 *x, i32 *y);
 void input_mouse_position_relative_delta(i32 *x, i32 *y);
 void input_mouse_position_absolute(i32 *x, i32 *y);
+r32 input_mouse_scroll_delta_x();
+b32 input_mouse_scrolled();
 
 #define NxMouseLeft        0
 #define NxMouseRight       1
