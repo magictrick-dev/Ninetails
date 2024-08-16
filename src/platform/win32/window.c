@@ -402,7 +402,7 @@ window_process_events()
             case WM_MOUSEWHEEL:
             {
                 r32 scroll = (r32)GET_WHEEL_DELTA_WPARAM(w_param);
-                current_frame->mouse_wheel.delta_x = scroll;
+                current_frame->mouse_wheel.delta_y = scroll;
                 current_frame->mouse_wheelie = true;
             } break;
 

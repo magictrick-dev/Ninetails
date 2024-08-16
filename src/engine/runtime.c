@@ -94,14 +94,14 @@ runtime_main(buffer heap)
         if (input_mouse_position_moved())
         {
             i32 x, y, dx, dy;
-            input_mouse_position_relative(&x, &y);
+            input_mouse_position_relative_bounded(&x, &y);
             input_mouse_position_relative_delta(&dx, &dy);
             printf("-- Mouse position moved %i %i, delta %i %i\n", x, y, dx, dy);
         }
 
         if (input_mouse_scrolled())
         {
-            r32 delta_x = input_mouse_scroll_delta_x();
+            r32 delta_x = input_mouse_scroll_delta_y();
             printf("-- Mouse scroll delta %f\n", delta_x);
         }
 

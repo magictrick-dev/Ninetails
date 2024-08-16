@@ -118,7 +118,22 @@ input_mouse_button_time_up(u32 mouse_code)
 }
 
 void 
-input_mouse_position_relative(i32 *x, i32 *y)
+input_mouse_position_relative_unbounded(i32 *x, i32 *y)
+{
+
+    NX_ENSURE_POINTER(x);
+    NX_ENSURE_POINTER(y);
+
+    POINT position = {};
+    GetCursorPos(&position);
+    ScreenToClient((HWND)window_get_handle(), &position);
+    *x = position.x;
+    *y = position.y;
+
+}
+
+void 
+input_mouse_position_relative_bounded(i32 *x, i32 *y)
 {
 
     NX_ENSURE_POINTER(x);
@@ -163,10 +178,10 @@ input_mouse_position_relative_delta(i32 *x, i32 *y)
 }
 
 r32 
-input_mouse_scroll_delta_x()
+input_mouse_scroll_delta_y()
 {
     input_state *current_frame = get_current_input_state();
-    r32 result = current_frame->mouse_wheel.delta_x;
+    r32 result = current_frame->mouse_wheel.delta_y;
     return result;
 }
 

@@ -17,10 +17,11 @@ r64 input_mouse_button_time_down(u32 mouse_code);
 r64 input_mouse_button_time_up(u32 mouse_code);
 
 b32 input_mouse_position_moved();
-void input_mouse_position_relative(i32 *x, i32 *y);
+void input_mouse_position_relative_unbounded(i32 *x, i32 *y);
+void input_mouse_position_relative_bounded(i32 *x, i32 *y);
 void input_mouse_position_relative_delta(i32 *x, i32 *y);
 void input_mouse_position_absolute(i32 *x, i32 *y);
-r32 input_mouse_scroll_delta_x();
+r32 input_mouse_scroll_delta_y();
 b32 input_mouse_scrolled();
 
 #define NxMouseLeft        0

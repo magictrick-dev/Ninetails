@@ -122,3 +122,56 @@ r64 input_mouse_button_time_up(u32 mouse_code);
 ```
 
 -   Returns the duration, in seconds, that the mouse button has been up.
+
+```C
+b32 input_mouse_position_moved();
+```
+
+-   Returns true if the mouse position has changed within the window. On Windows,
+    this event does not trigger when the mouse moves outside the client window area.
+    You will need to manually invoke `input_mouse_position_relative_unbounded()` and
+    cache the results to determine if the most changed relative to the unbounded
+    positions.
+
+```C
+void input_mouse_position_relative_unbounded(i32 *x, i32 *y);
+```
+
+-   Sets the x & y coordinates to the mouses relative unbounded coordinates. These
+    positions correspond to the upper left hand corner of the client are of the
+    window and may return results that are outside the area of client window.
+
+```C
+void input_mouse_position_relative_bounded(i32 *x, i32 *y);
+```
+
+-   Sets the x & y coordinates to the mouses relative bounded coordinates. This
+    value always returns a value that is bounded to the client area of the window.
+
+```C
+void input_mouse_position_relative_delta(i32 *x, i32 *y);
+```
+
+-   Returns the the delta x & y coordinates of the mouse movement in respect to
+    the last frame. These values are bounded to the client area of the window.
+
+```C
+void input_mouse_position_absolute(i32 *x, i32 *y);
+```
+
+-   Returns the absolute position of the mouse relative to screen space of the
+    active monitor. This value may not be entirely consistent within multi-monitor
+    setups and you should have relative coordinates for almost all cases. Use at your
+    own discretion.
+
+```C
+r32 input_mouse_scroll_delta_y();
+```
+
+-   Returns the delta distance of the scroll wheel.
+
+```C
+b32 input_mouse_scrolled();
+```
+
+-   Returns true if the mouse wheel has been scrolled for the current frame.
