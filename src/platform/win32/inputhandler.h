@@ -17,10 +17,20 @@ typedef struct analog_input
     r32 delta_y;
 } analog_input;
 
+typedef struct mouse_input
+{
+    i32 mouse_x;
+    i32 mouse_y;
+    i32 delta_x;
+    i32 delta_y;
+    b32 moved;
+} mouse_input;
+
 typedef struct input_state
 {
     digital_input keyboard[256];
     digital_input mouse[8];
+    mouse_input mouse_position;
 } input_state;
 
 input_state*    get_current_input_state();

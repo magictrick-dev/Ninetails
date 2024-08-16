@@ -1,4 +1,5 @@
 #include <platform/win32/inputhandler.h>
+#include <platform/window.h>
 #include <platform/input.h>
 
 void 
@@ -116,4 +117,48 @@ input_mouse_button_time_up(u32 mouse_code)
 
 }
 
+void 
+input_mouse_position_relative(i32 *x, i32 *y)
+{
+
+    NX_ENSURE_POINTER(x);
+    NX_ENSURE_POINTER(y);
+    input_state *current_frame = get_current_input_state();
+    *x = current_frame->mouse_position.mouse_x;
+    *y = current_frame->mouse_position.mouse_y;
+
+}
+
+void 
+input_mouse_position_absolute(i32 *x, i32 *y)
+{
+
+    NX_ENSURE_POINTER(x);
+    NX_ENSURE_POINTER(y);
+
+    POINT position = {};
+    GetCursorPos(&position);
+    *x = position.x;
+    *y = position.y;
+
+}
+
+b32
+input_mouse_position_moved()
+{
+    input_state *current_frame = get_current_input_state();
+    b32 result = current_frame->mouse_position.moved;
+    return result;
+}
+
+void 
+input_mouse_position_relative_delta(i32 *x, i32 *y)
+{
+    NX_ENSURE_POINTER(x);
+    NX_ENSURE_POINTER(y);
+    input_state *current_frame = get_current_input_state();
+    *x = current_frame->mouse_position.delta_x;
+    *y = current_frame->mouse_position.delta_y;
+
+}
 

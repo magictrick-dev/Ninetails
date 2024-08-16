@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <windowsx.h>
 #include <platform/window.h>
 #include <platform/input.h>
 #include <platform/win32/inputhandler.h>
@@ -211,6 +212,8 @@ window_process_events()
 
     }
 
+    current_frame->mouse_position.moved = false;
+
     // Process all events for the current thread.
     MSG message;
     while (PeekMessage(&message, 0, 0, 0, PM_REMOVE))
@@ -378,6 +381,19 @@ window_process_events()
                 state->known_height = height;
                 state->was_resized = true;
 
+            } break;
+
+            case WM_MOUSEMOVE:
+            {
+                i32 x = GET_X_LPARAM(l_param); 
+                i32 y = GET_Y_LPARAM(l_param); 
+                current_frame->mouse_position.mouse_x = x;
+                current_frame->mouse_position.mouse_y = y;
+                current_frame->mouse_position.delta_x =
+                    (x - previous_frame->mouse_position.mouse_x);
+                current_frame->mouse_position.delta_y =
+                    (y - previous_frame->mouse_position.mouse_y);
+                current_frame->mouse_position.moved = true;
             } break;
 
         }
@@ -850,6 +866,7 @@ wMainWindowProc(HWND window, UINT message, WPARAM w_param, LPARAM l_param)
 
         } break;
 
+        case WM_MOUSEMOVE:
         case WM_SIZE:
         case WM_ACTIVATEAPP:
         case WM_KEYDOWN:

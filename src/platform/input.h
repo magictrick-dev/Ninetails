@@ -16,6 +16,11 @@ bool input_mouse_button_is_down(u32 mouse_code);
 r64 input_mouse_button_time_down(u32 mouse_code);
 r64 input_mouse_button_time_up(u32 mouse_code);
 
+b32 input_mouse_position_moved();
+void input_mouse_position_relative(i32 *x, i32 *y);
+void input_mouse_position_relative_delta(i32 *x, i32 *y);
+void input_mouse_position_absolute(i32 *x, i32 *y);
+
 #define NxMouseLeft        0
 #define NxMouseRight       1
 #define NxMouseMiddle      2

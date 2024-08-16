@@ -91,6 +91,14 @@ runtime_main(buffer heap)
             printf("-- The left mouse button was released.\n");
         }
 
+        if (input_mouse_position_moved())
+        {
+            i32 x, y, dx, dy;
+            input_mouse_position_relative(&x, &y);
+            input_mouse_position_relative_delta(&dx, &dy);
+            printf("-- Mouse position moved %i %i, delta %i %i\n", x, y, dx, dy);
+        }
+
         // Rendering pre-frame stuff.
         glViewport(0, 0, window_get_width(), window_get_height());
         glClear(GL_COLOR_BUFFER_BIT);
