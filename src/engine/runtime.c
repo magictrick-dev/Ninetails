@@ -65,46 +65,6 @@ runtime_main(buffer heap)
             input_release_all();
         }
 
-        // Test keyboard functionality.
-        if (input_key_is_pressed(NxKeyA))
-        {
-            r64 time_released = input_key_time_up(NxKeyA);
-            printf("-- The A key was free for %fs.\n", time_released);
-            printf("-- The A key was pressed.\n");
-        }
-
-        else if (input_key_is_released(NxKeyA))
-        {
-            r64 time_down = input_key_time_down(NxKeyA);
-            printf("-- The A key was free for %fs.\n", time_down);
-            printf("-- The A key was released.\n");
-        }
-
-        // Test mouse functionality.
-        if (input_mouse_button_is_pressed(NxMouseLeft))
-        {
-            printf("-- The left mouse button was pressed.\n");
-        }
-
-        else if (input_mouse_button_is_released(NxMouseLeft))
-        {
-            printf("-- The left mouse button was released.\n");
-        }
-
-        if (input_mouse_position_moved())
-        {
-            i32 x, y, dx, dy;
-            input_mouse_position_relative_bounded(&x, &y);
-            input_mouse_position_relative_delta(&dx, &dy);
-            printf("-- Mouse position moved %i %i, delta %i %i\n", x, y, dx, dy);
-        }
-
-        if (input_mouse_scrolled())
-        {
-            r32 delta_x = input_mouse_scroll_delta_y();
-            printf("-- Mouse scroll delta %f\n", delta_x);
-        }
-
         // Rendering pre-frame stuff.
         glViewport(0, 0, window_get_width(), window_get_height());
         glClear(GL_COLOR_BUFFER_BIT);

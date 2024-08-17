@@ -132,8 +132,7 @@ Currently, this API only allows for a single primary window to be shown.
 
 ### **[Platform: OpenGL API](./doc/OPENGL_API.md)**
 
-The OpenGL API is the system hooks to establish a hardware rendering context and
-related helpers to make working with OpenGL a little easier.
+The OpenGL API is the system hooks to establish a hardware rendering context.
 
 ### **[Platform: Input API](./doc/INPUT_API.md)**
 

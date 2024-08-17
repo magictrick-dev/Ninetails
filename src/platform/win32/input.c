@@ -124,7 +124,7 @@ input_mouse_position_relative_unbounded(i32 *x, i32 *y)
     NX_ENSURE_POINTER(x);
     NX_ENSURE_POINTER(y);
 
-    POINT position = {};
+    POINT position = {0};
     GetCursorPos(&position);
     ScreenToClient((HWND)window_get_handle(), &position);
     *x = position.x;
@@ -151,7 +151,7 @@ input_mouse_position_absolute(i32 *x, i32 *y)
     NX_ENSURE_POINTER(x);
     NX_ENSURE_POINTER(y);
 
-    POINT position = {};
+    POINT position = {0};
     GetCursorPos(&position);
     *x = position.x;
     *y = position.y;
