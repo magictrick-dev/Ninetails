@@ -29,7 +29,7 @@ opengl_shader_compile(GLuint id, ccptr source)
 
     GLuint shader_identifier = id;
 
-    glShaderSource(shader_identifier, 1, &shader_source, NULL);
+    glShaderSource(shader_identifier, 1, &source, NULL);
     glCompileShader(shader_identifier);
 
     // Check compilation status.
@@ -120,7 +120,7 @@ void
 opengl_program_release(GLuint program)
 {
 
-    glDeleteProgram(shader);
+    glDeleteProgram(program);
 
 }
 
