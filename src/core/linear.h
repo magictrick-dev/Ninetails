@@ -1,6 +1,7 @@
 #ifndef SRC_CORE_LINEAR_H
 #define SRC_CORE_LINEAR_H
 #include <core/definitions.h>
+#include <xmmintrin.h>
 
 // --- Vector2 -----------------------------------------------------------------
 
@@ -94,6 +95,7 @@ r32 vector3_magnitude(v3 vec);
 typedef union vector4
 {
     r32 elements[4];
+    __m128 sse;
 
     struct
     {
@@ -135,5 +137,26 @@ v4 vector4_normalize(v4 vec);
 v4 vector4_to_cartesian(v4 vec);
 r32 vector4_magnitude_squared(v4 vec);
 r32 vector4_magnitude(v4 vec);
+
+void vector4_print(v4 vec);
+
+// --- Matrix4 -----------------------------------------------------------------
+
+typedef union matrix4
+{
+
+    r32 elements[4][4];
+    v4 columns[4];
+
+} matrix4, m4;
+
+v4 matrix4_mulv4(m4 lhs, v4 rhs);
+m4 matrix4_mulm4(m4 lhs, m4 rhs);
+
+m4 matrix4_identity();
+m4 matrix4_translate(v3 where);
+m4 matrix4_scale(v3 how);
+
+void matrix4_print(m4 mat);
 
 #endif

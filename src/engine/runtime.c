@@ -4,6 +4,7 @@
 #include <platform/opengl.h>
 #include <platform/window.h>
 #include <core/definitions.h>
+#include <core/linear.h>
 #include <core/arena.h>
 
 static memory_arena primary_arena;
@@ -48,6 +49,27 @@ runtime_main(buffer heap)
 
     // Show the window.
     window_set_visibility(true);
+
+    // Test the math.
+    printf("Identity Matrix\n");
+    m4 identity = matrix4_identity();
+    matrix4_print(identity);
+
+    printf("Translation Matrix\n");
+    m4 translation = matrix4_translate((v3){ 1.0f, 2.0f, 3.0f });
+    matrix4_print(translation);
+    
+    printf("Scale Matrix\n");
+    m4 scale = matrix4_scale((v3){2.0f, 2.0f, 1.0f});
+    matrix4_print(scale);
+
+    printf("Test Point\n");
+    v4 point_a = { 10.0f, 15.0f, 0.0f, 1.0f };
+    vector4_print(point_a);
+
+    printf("After applying transforms\n");
+    v4 result = matrix4_mulv4(matrix4_mulm4(translation, scale), point_a);
+    vector4_print(result);
 
     // Standard runtime loop.
     i32 count = 0;
