@@ -3,8 +3,12 @@
 #include <core/definitions.h>
 #include <glad/glad.h>
 
+// --- Context Helpers ---------------------------------------------------------
+
 b32 create_opengl_render_context(vptr window_handle);
 b32 set_opengl_vertical_sync(i32 interval);
+
+// --- Shader Helpers ----------------------------------------------------------
 
 GLuint  opengl_shader_create(GLuint type);
 b32     opengl_shader_compile(GLuint id, ccptr source);

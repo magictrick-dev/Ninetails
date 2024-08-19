@@ -6,9 +6,16 @@
 #include <core/definitions.h>
 #include <core/linear.h>
 #include <core/arena.h>
+#include <engine/primitives.h>
 
 static memory_arena primary_arena;
 static b32 runtime_flag;
+
+memory_arena *
+runtime_get_primary_arena()
+{
+    return &primary_arena;
+}
 
 b32 
 runtime_init(buffer heap)
@@ -50,26 +57,10 @@ runtime_main(buffer heap)
     // Show the window.
     window_set_visibility(true);
 
-    // Test the math.
-    printf("Identity Matrix\n");
-    m4 identity = matrix4_identity();
-    matrix4_print(identity);
-
-    printf("Translation Matrix\n");
-    m4 translation = matrix4_translate((v3){ 1.0f, 2.0f, 3.0f });
-    matrix4_print(translation);
-    
-    printf("Scale Matrix\n");
-    m4 scale = matrix4_scale((v3){2.0f, 2.0f, 1.0f});
-    matrix4_print(scale);
-
-    printf("Test Point\n");
-    v4 point_a = { 10.0f, 15.0f, 0.0f, 1.0f };
-    vector4_print(point_a);
-
-    printf("After applying transforms\n");
-    v4 result = matrix4_mulv4(matrix4_mulm4(translation, scale), point_a);
-    vector4_print(result);
+    // OpenGL setup.
+    GLuint vertex_array_object;
+    glGenVertexArrays(1, &vertex_array_object);
+    glBindVertexArray(vertex_array_object);
 
     // Standard runtime loop.
     i32 count = 0;
@@ -92,6 +83,8 @@ runtime_main(buffer heap)
         glClear(GL_COLOR_BUFFER_BIT);
         glClear(GL_DEPTH_BUFFER_BIT);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+        cube();
 
         // Swap the buffers at the end.
         window_swap_buffers();

@@ -32,6 +32,8 @@ typedef void*       vptr;
 #define NX_DEGTORAD32(d)    (d/180.0f*NX_PI32)
 #define NX_DEGTORAD64(d)    (d/180.0*NX_PI)
 
+#define NX_ARRSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+
 #define NX_BYTEOFFSET(ptr, n) ((u8*)ptr + n)
 #define NX_BYTEOFFSET_AND_RECAST(ptr, n, type) ((type*)(u8*)ptr + n))
 

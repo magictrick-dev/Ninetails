@@ -73,9 +73,12 @@ file_read_all(ccptr file_path, vptr buffer, u64 buffer_size)
         return 0;
 
     size_t file_size = GetFileSize(file_handle, NULL);
+    DWORD bytes_read;
+    ReadFile(file_handle, buffer, file_size, &bytes_read, NULL);
+    NX_ASSERT(bytes_read == file_size);
     CloseHandle(file_handle);
 
-    return (size_t)file_size;
+    return bytes_read;
 
 }
 
