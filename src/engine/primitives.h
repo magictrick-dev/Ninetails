@@ -6,9 +6,14 @@
 #include <engine/runtime.h>
 
 r32 cube_vertices[] = {
-    -1.0f, 1.0f, 0.0f,
-    -1.0f, -1.0f, 0.0f,
-    1.0f, -1.0f, 0.0f,
+    -1.0f,  1.0f,  0.0f,     0.0f,  0.0f,  1.0f,
+    -1.0f, -1.0f,  0.0f,     0.0f,  0.0f,  1.0f,
+     1.0f, -1.0f,  0.0f,     0.0f,  0.0f,  1.0f,
+     1.0f,  1.0f,  0.0f,     0.0f,  0.0f,  1.0f
+};
+
+u32 cube_indices[] = {
+    0, 1, 2, 0, 2, 3
 };
 
 void cube()
