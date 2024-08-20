@@ -131,6 +131,32 @@ opengl_program_release(GLuint program)
 // is not, so the following front-end API provides this functionality.
 //
 
+static inline b32 
+render_context_check_last_error()
+{
+
+    DWORD errorMessageID = GetLastError();
+    if (errorMessageID != 0) 
+    {
+    
+        LPSTR messageBuffer = NULL;
+
+        size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                (LPSTR)&messageBuffer, 0, NULL);
+        
+        printf("-- OpenGL Context Creation Error: %s\n", messageBuffer);
+        LocalFree(messageBuffer);
+
+        return true;
+
+    }
+
+    return false;
+
+}
+
 b32 
 create_opengl_render_context(vptr window_handle)
 {
@@ -144,21 +170,39 @@ create_opengl_render_context(vptr window_handle)
     HDC device_context = GetDC(window_handle);
 
     // Set the pixel format descriptor hoopla.
-    PIXELFORMATDESCRIPTOR pfd   = {0};
-    pfd.nSize                   = sizeof(pfd);
-    pfd.nVersion                = 1;
-    pfd.dwFlags                 = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-    pfd.iPixelType              = PFD_TYPE_RGBA;
-    pfd.cColorBits              = 32;
+    PIXELFORMATDESCRIPTOR pfd = 
+    {
+        sizeof(PIXELFORMATDESCRIPTOR),
+        1,
+        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+        PFD_TYPE_RGBA,        // The kind of framebuffer. RGBA or palette.
+        32,                   // Colordepth of the framebuffer.
+        0, 0, 0, 0, 0, 0,
+        0,
+        0,
+        0,
+        0, 0, 0, 0,
+        24,                   // Number of bits for the depthbuffer
+        8,                    // Number of bits for the stencilbuffer
+        0,                    // Number of Aux buffers in the framebuffer.
+        PFD_MAIN_PLANE,
+        0,
+        0, 0, 0
+    };
+
 
     // This is the goofiest way to do this.
     int pixel_format = ChoosePixelFormat(device_context, &pfd);
-    NX_ASSERT(pixel_format != 0);
-    NX_ASSERT(SetPixelFormat(device_context, pixel_format, &pfd));
+    SetPixelFormat(device_context, pixel_format, &pfd);
+    if (render_context_check_last_error()) return false;
 
     // Intiialize OpenGL using GLAD.
     HGLRC opengl_render_context = wglCreateContext(device_context);
+    if (render_context_check_last_error()) return false;
+
     wglMakeCurrent(device_context, opengl_render_context);
+    if (render_context_check_last_error()) return false;
+
     gladLoadGL();
     gladLoadWGL(device_context);
 

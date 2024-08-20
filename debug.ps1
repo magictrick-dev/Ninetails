@@ -1,1 +1,1 @@
-devenv bin/ninetails.exe
+devenv compile/ninetails.sln
