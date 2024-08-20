@@ -1,5 +1,7 @@
 #ifndef SRC_CORE_DEFINITIONS_H
 #define SRC_CORE_DEFINITIONS_H
+#include <stdio.h>
+#include <conio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>

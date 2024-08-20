@@ -102,7 +102,7 @@ window_initialize(ccptr title, i32 width, i32 height, b32 show)
     WaitForSingleObject(state->ghost_thread_sync, INFINITE);
     CloseHandle(state->ghost_thread_sync);
 
-    NX_PEDANTIC_ASSERT(state->ghost_thread_initialized == true);
+    NX_PEDANTIC_ASSERT(state->ghost_thread_initialized);
     if (state->ghost_thread_initialized == false) return false;
 
     // We can now create our window.
@@ -159,7 +159,7 @@ window_initialize(ccptr title, i32 width, i32 height, b32 show)
 
     state->main_window_device_context = GetDC(main_window_handle);
 
-    if (show == true)
+    if (show)
     {
         ShowWindow(main_window_handle, SW_SHOWNORMAL);
     }
@@ -635,7 +635,7 @@ window_set_visibility(b32 hide)
 {
 
     window_state *state = get_window_state();
-    if (hide == true)
+    if (hide)
         ShowWindow(state->main_window_handle, SW_SHOWNORMAL);
     else
         ShowWindow(state->main_window_handle, SW_HIDE);

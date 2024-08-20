@@ -51,7 +51,7 @@ initialize_input_states()
     static b32 virtual_initialized = false;
 
     // Only needs to initialize once.
-    if (virtual_initialized == true) return;
+    if (virtual_initialized) return;
     virtual_initialized = true;
 
     current_state = &states[0];

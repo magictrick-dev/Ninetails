@@ -1,6 +1,7 @@
 #ifndef SRC_CORE_LINEAR_H
 #define SRC_CORE_LINEAR_H
 #include <core/definitions.h>
+#include <math.h>
 #include <xmmintrin.h>
 
 // --- Vector2 -----------------------------------------------------------------

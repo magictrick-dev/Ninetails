@@ -3,22 +3,27 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.21)
 PROJECT(ninetails)
 
 ADD_EXECUTABLE(ninetails WIN32
-    "src/main.c"
+    "src/main.cpp"
     "src/engine/runtime.h"
-    "src/engine/runtime.c"
+    "src/engine/runtime.cpp"
     "src/engine/primitives.h"
+    "src/engine/objformat.h"
+    "src/engine/objformat.cpp"
+
     "src/core/definitions.h"
     "src/core/arena.h"
-    "src/core/arena.c"
+    "src/core/arena.cpp"
     "src/core/memoryops.h"
-    "src/core/memoryops.c"
+    "src/core/memoryops.cpp"
     "src/core/linear.h"
-    "src/core/linear.c"
+    "src/core/linear.cpp"
+
     "src/platform/filesystem.h"
     "src/platform/input.h"
     "src/platform/opengl.h"
     "src/platform/system.h"
     "src/platform/window.h"
+
     "vnd/glad/glad.c"
     "vnd/glad/glad.h"
     "vnd/glad/glad_wgl.c"

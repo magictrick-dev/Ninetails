@@ -65,7 +65,7 @@ runtime_main(buffer heap)
     // Standard runtime loop.
     i32 count = 0;
     runtime_flag = true;
-    while (runtime_flag == true)
+    while (runtime_flag)
     {
 
         // Pre-loop stuff.

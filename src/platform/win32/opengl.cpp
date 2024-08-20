@@ -167,7 +167,7 @@ create_opengl_render_context(vptr window_handle)
     if (ctx->render_context != NULL) return true; // Already established.
 
     // Get the device context from the window.
-    HDC device_context = GetDC(window_handle);
+    HDC device_context = GetDC((HWND)window_handle);
 
     // Set the pixel format descriptor hoopla.
     PIXELFORMATDESCRIPTOR pfd = 
@@ -207,7 +207,7 @@ create_opengl_render_context(vptr window_handle)
     gladLoadWGL(device_context);
 
     // Finally, set our contexts.
-    ctx->window_handle = window_handle;
+    ctx->window_handle = (HWND)window_handle;
     ctx->device_context = device_context;
     ctx->render_context = opengl_render_context;
 
