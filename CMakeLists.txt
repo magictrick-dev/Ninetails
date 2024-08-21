@@ -16,7 +16,6 @@ ADD_EXECUTABLE(ninetails WIN32
     "src/core/memoryops.h"
     "src/core/memoryops.cpp"
     "src/core/linear.h"
-    "src/core/linear.cpp"
 
     "src/platform/filesystem.h"
     "src/platform/input.h"

@@ -3,7 +3,9 @@
 #include <core/definitions.h>
 #include <math.h>
 #include <xmmintrin.h>
+#include <handmademath/HandMadeMath.h>
 
+#if 0
 // --- Vector2 -----------------------------------------------------------------
 
 typedef union vector2
@@ -160,4 +162,5 @@ m4 matrix4_scale(v3 how);
 
 void matrix4_print(m4 mat);
 
+#endif
 #endif

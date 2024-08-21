@@ -53,10 +53,10 @@ typedef struct wavefront_object_face
 
 typedef struct wavefront_object_mesh
 {
-    v3 *vertices;
-    v3 *color;
-    v3 *normals;
-    v2 *texture_coords;
+    vec3 *vertices;
+    vec3 *color;
+    vec3 *normals;
+    vec2 *texture_coords;
     wavefront_object_face *faces;
     u64 vertex_count;
     u64 color_count;
