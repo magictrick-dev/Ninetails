@@ -62,6 +62,18 @@ static inline void
 move_to_next_entry(wavefront_parser *parser)
 {
 
+    char current = parser->source[parser->offset];
+    while (current != '\0')
+    {
+            
+        if (current == '\n') break;
+        current = parser->source[++parser->offset];
+
+    }
+
+    if (current != '\0') parser->offset++;
+    return;
+
 }
 
 b32 
