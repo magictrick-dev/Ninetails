@@ -21,4 +21,7 @@ u64         file_stream_get_offset(vptr handle);
 u64         file_stream_read(vptr handle, u64 read_size, vptr dest, u64 dest_size);
 b32         file_stream_is_eof(vptr handle);
 
+u64         file_image_size(ccptr file_path);
+b32         file_image_load(ccptr file_path, image *img, void *buffer, u64 buffer_size);
+
 #endif

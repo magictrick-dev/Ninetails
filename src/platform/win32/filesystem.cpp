@@ -1,5 +1,7 @@
 #include <windows.h>
 #include <platform/filesystem.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 
 b32         
 file_exists(ccptr file_path)
@@ -252,4 +254,63 @@ file_stream_is_eof(vptr handle)
 
 }
 
+u64         
+file_image_size(ccptr file_path)
+{
+
+    int width;
+    int height;
+    int channels;
+    int ok;
+
+    ok = stbi_info(file_path, &width, &height, NULL);
+    if (!ok) return 0;
+
+    // We are enforcing 4 channel colors, RGBA.
+    u64 file_size_required = (width * height * 4);
+    return file_size_required;
+
+}
+
+b32         
+file_image_load(ccptr file_path, image *img, void *buffer, u64 buffer_size)
+{
+
+    // NOTE(Chris): This load routine does dynamic memory allocation. STB Image
+    //              uses this for decompression so its mostly unavoidable. In the
+    //              future, we should probably provide a custom allocator so that
+    //              we can control where this memory is going and perhaps save a
+    //              memory copy operation.
+
+    int width;
+    int height;
+    int channels = 4;
+    u8* pixel_buffer;
+
+    stbi_set_flip_vertically_on_load(true);
+    pixel_buffer = stbi_load(file_path, &width, &height, NULL, 4);
+    NX_ASSERT(pixel_buffer != NULL);
+
+    u64 image_size = (width * height * 4);
+    NX_ASSERT(image_size <= buffer_size); 
+
+    memcpy(buffer, pixel_buffer, image_size);
+
+    // Once the image is copied, we can free the stb image.
+    stbi_image_free(pixel_buffer);
+
+    // Set up the results.
+    img->buffer         = (u8*)buffer;
+    img->width          = width;
+    img->height         = height;
+    img->pitch          = sizeof(u32) * width;
+    img->bits_per_pixel = 32;
+    img->red_mask       = 0xFF000000;
+    img->green_mask     = 0x00FF0000;
+    img->blue_mask      = 0x0000FF00;
+    img->alpha_mask     = 0x000000FF;
+
+    return image_size;
+
+}
 
