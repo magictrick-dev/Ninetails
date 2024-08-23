@@ -34,7 +34,7 @@
 //      f 2 3 4 5 6 7 8 -> 2, 3, 4 + 2, 4, 5 + 2, 5, 6 + 2, 6, 7, + 2, 7, 8...
 //
 //      Index specifications are separated by slashes, with trailing slashes ignored.
-//      For example: f 1//1 2//2 3//3 is v//vt with a null vn.
+//      For example: f 1//1 2//2 3//3 is v/vt/vn with a null vt.
 //
 // - Identifier: "#"
 //      Denotes a comment.

@@ -1,9 +1,23 @@
 #include <engine/objformat.h>
 
+typedef struct wavefront_parser         wavefront_parser;
+typedef enum class wavefront_entry_type wavefront_entry_type;
+typedef struct wavefront_vertex         wavefront_vertex;
+typedef struct wavefront_normal         wavefront_normal;
+typedef struct wavefront_texturecoord   wavefront_texturecoord;
+typedef struct wavefront_node           wavefront_node;
+
+static inline wavefront_entry_type      get_entry_type(wavefront_parser *parser);
+static inline void                      move_to_next_entry(wavefront_parser *parser);
+static inline void                      move_until_character(wavefront_parser *parser);
+
 typedef struct wavefront_parser
 {
-    ccptr source;
-    u64 offset;
+    ccptr   source;
+    u64     offset;
+    u32     vertices;
+    u32     normals;
+    u32     texturecoords;
 } wavefront_parser;
 
 typedef enum class wavefront_entry_type
@@ -18,9 +32,44 @@ typedef enum class wavefront_entry_type
     ENDFILE,
 } wavefront_entry_type;
 
-static inline wavefront_entry_type get_entry_type(wavefront_parser *parser);
-static inline void move_to_next_entry(wavefront_parser *parser);
-static inline void move_until_character(wavefront_parser *parser);
+typedef struct wavefront_vertex
+{
+    vec3 position;
+    vec3 color;
+} wavefront_vertex;
+
+typedef struct wavefront_normal
+{
+    vec3 normal;
+} wavefront_normal;
+
+typedef struct wavefront_texturecoord
+{
+    vec2 coordinate;
+} wavefront_texturecoord;
+
+typedef struct wavefront_face
+{
+    i32 vertex_index;
+    i32 normal_index;
+    i32 texturecoord_index;
+} wavefront_face;
+
+typedef struct wavefront_node
+{
+
+    wavefront_entry_type type;
+    wavefront_node *next;
+
+    union
+    {
+        wavefront_vertex vertex;
+        wavefront_normal normal;
+        wavefront_texturecoord texturecoord;
+        wavefront_face face;
+    };
+
+} wavefront_node;
 
 static inline void 
 move_until_character(wavefront_parser *parser)
@@ -87,6 +136,37 @@ wavefront_object_parse_file(ccptr object_file, wavefront_object_mesh *mesh, memo
     wavefront_entry_type current_entry_type = get_entry_type(&parser);
     while (current_entry_type != wavefront_entry_type::ENDFILE)
     {
+        
+        wavefront_entry_type type = get_entry_type(&parser);
+
+        switch (type)
+        {
+
+            case wavefront_entry_type::EMPTY:
+            case wavefront_entry_type::COMMENT:
+            {
+
+                move_to_next_entry(&parser);
+                continue;
+
+            } break;
+
+            case wavefront_entry_type::INVALID:
+            {
+
+                printf("Encountered invalid entry.\n");
+                continue;
+
+            } break;
+
+            case wavefront_entry_type::ENDFILE:
+            {
+
+                continue;       
+
+            } break;
+
+        };
 
     }
 
