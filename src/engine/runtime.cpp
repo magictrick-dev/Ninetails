@@ -36,7 +36,9 @@ runtime_init(buffer heap)
     }
 
     // Set some OpenGL context stuff.
+    glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
 
     // Preset values, swap frame afterwards to show it.
     glViewport(0, 0, window_get_width(), window_get_height());
@@ -84,7 +86,9 @@ runtime_main(buffer heap)
         glClear(GL_DEPTH_BUFFER_BIT);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-        cube();
+        //cube();
+
+
 
         // Swap the buffers at the end.
         window_swap_buffers();

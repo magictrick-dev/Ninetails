@@ -9,6 +9,8 @@ ADD_EXECUTABLE(ninetails WIN32
     "src/engine/primitives.h"
     "src/engine/objformat.h"
     "src/engine/objformat.cpp"
+    "src/engine/renderers/quad2d.h"
+    "src/engine/renderers/quad2d.cpp"
 
     "src/core/definitions.h"
     "src/core/arena.h"
