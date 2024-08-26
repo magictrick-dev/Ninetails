@@ -173,17 +173,17 @@ extern "C"
 # define HANDMADE_MATH_USE_RADIANS
 #endif
 
-#define pi 3.14159265358979323846
-#define pi32 3.14159265359f
+#define hmm_pi 3.14159265358979323846
+#define hmm_pi32 3.14159265359f
 #define deg180 180.0
 #define deg18032 180.0f
 #define turnhalf 0.5
 #define turnhalf32 0.5f
-#define radtodeg ((float)(deg180/pi))
-#define radtoturn ((float)(turnhalf/pi))
-#define degtorad ((float)(pi/deg180))
+#define radtodeg ((float)(deg180/hmm_pi))
+#define radtoturn ((float)(turnhalf/hmm_pi))
+#define degtorad ((float)(hmm_pi/deg180))
 #define degtoturn ((float)(turnhalf/deg180))
-#define turntorad ((float)(pi/turnhalf))
+#define turntorad ((float)(hmm_pi/turnhalf))
 #define turntodeg ((float)(deg180/turnhalf))
 
 #if defined(HANDMADE_MATH_USE_RADIANS)
@@ -223,11 +223,11 @@ extern "C"
 # endif
 #endif
 
-#define min(a, b) ((a) > (b) ? (b) : (a))
-#define max(a, b) ((a) < (b) ? (b) : (a))
-#define abs(a) ((a) > 0 ? (a) : -(a))
-#define mod(a, m) (((a) % (m)) >= 0 ? ((a) % (m)) : (((a) % (m)) + (m)))
-#define square(x) ((x) * (x))
+#define hmm_min(a, b) ((a) > (b) ? (b) : (a))
+#define hmm_max(a, b) ((a) < (b) ? (b) : (a))
+#define hmm_abs(a) ((a) > 0 ? (a) : -(a))
+#define hmm_mod(a, m) (((a) % (m)) >= 0 ? ((a) % (m)) : (((a) % (m)) + (m)))
+#define hmm_square(x) ((x) * (x))
 
 typedef union vec2
 {

@@ -10,6 +10,8 @@
 
 static memory_arena primary_arena;
 static b32 runtime_flag;
+static GLuint quad_program;
+static GLuint base_texture;
 
 memory_arena *
 runtime_get_primary_arena()
@@ -46,6 +48,98 @@ runtime_init(buffer heap)
     glClear(GL_DEPTH_BUFFER_BIT);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     window_swap_buffers();
+
+    // Generate our quad shaders.
+    GLuint q2d_vertex_shader = opengl_shader_create(GL_VERTEX_SHADER);
+    GLuint q2d_fragment_shader = opengl_shader_create(GL_FRAGMENT_SHADER);
+    ccptr quad_vertex_shader_path = "./res/quad2d_vertex.glsl";
+    ccptr quad_fragment_shader_path = "./res/quad2d_fragment.glsl";
+
+    if (!file_exists(quad_vertex_shader_path))
+    {
+        printf("-- Critical shader missing, quad2d_vertex.glsl\n");
+        return false;
+    }
+
+    if (!file_exists(quad_fragment_shader_path))
+    {
+        printf("-- Critical shader missing, quad2d_fragment.glsl\n");
+        return false;
+    }
+
+    u64 vertex_shader_size = file_size(quad_vertex_shader_path);
+    u64 fragment_shader_size = file_size(quad_fragment_shader_path);
+    if (vertex_shader_size == 0 || fragment_shader_size == 0)
+    {
+        printf("-- Critical shader error, size for either fragment or vertex shader is zero.\n");
+        return false;
+    }
+
+    u64 shader_save_point = memory_arena_save(&primary_arena);
+    cptr vertex_shader = (cptr)memory_arena_push(&primary_arena, vertex_shader_size + 1);
+    cptr fragment_shader = (cptr)memory_arena_push(&primary_arena, fragment_shader_size + 1);
+    u64 vertex_read_size = file_read_all(quad_vertex_shader_path, vertex_shader, vertex_shader_size);
+    u64 fragment_read_size = file_read_all(quad_fragment_shader_path, fragment_shader, fragment_shader_size);
+    if (vertex_read_size != vertex_shader_size)
+    {
+        printf("-- Critical shader error, read size mismatch for vertex shader.\n");
+        return false;
+    }
+
+    if (fragment_read_size != fragment_shader_size)
+    {
+        printf("-- Critical shader error, read size mismatch for fragment shader.\n");
+        return false;
+    }
+
+    vertex_shader[vertex_shader_size] = '\0';
+    fragment_shader[fragment_shader_size] = '\0';
+
+    if (!opengl_shader_compile(q2d_vertex_shader, vertex_shader))
+    {
+        printf("-- Critical shader error, unable to compile vertex shader.\n");
+        return false;
+    }
+
+    if (!opengl_shader_compile(q2d_fragment_shader, fragment_shader))
+    {
+        printf("-- Critical shader error, unable to compile fragment shader.\n");
+        return false;
+    }
+
+    quad_program = opengl_program_create();
+    opengl_program_attach(quad_program, q2d_vertex_shader);
+    opengl_program_attach(quad_program, q2d_fragment_shader);
+    if (!opengl_program_link(quad_program))
+    {
+        printf("-- Critical shader error, unable to link program.\n");
+        return false;
+    }
+
+    opengl_shader_release(q2d_vertex_shader);
+    opengl_shader_release(q2d_fragment_shader);
+
+
+    // Load the texture.
+    ccptr test_image_path = "./res/testtex1024x1024.png";
+    if (!file_exists(test_image_path))
+    {
+        printf("-- Critical texture error, image does not exists.\n");
+        return false;
+    }
+
+    image test_image = {0};
+    u64 test_image_size = file_image_size(test_image_path);
+    vptr image_buffer = memory_arena_push(&primary_arena, test_image_size);
+    if (!file_image_load(test_image_path, &test_image, image_buffer, test_image_size))
+    {
+        printf("-- Critical texture error, image couldn't be loaded.\n");
+        return false;
+    }
+
+    base_texture = opengl_texture_create(&test_image);
+
+    memory_arena_restore(&primary_arena, shader_save_point);
 
     // Return true to indicate that init succeeded.
     return true;

@@ -124,6 +124,101 @@ opengl_program_release(GLuint program)
 
 }
 
+GLuint 
+opengl_texture_create(image *img)
+{
+
+    GLuint texture_identifier = NULL;
+    glGenTextures(1, &texture_identifier);
+    glBindTexture(GL_TEXTURE_2D, texture_identifier);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,  img->width, img->height, 0, GL_RGBA,
+            GL_UNSIGNED_BYTE, img->buffer);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, NULL);
+    return texture_identifier;
+
+}
+
+void 
+opengl_texture_delete(GLuint texture_identifier)
+{
+
+    glDeleteTextures(1, &texture_identifier);
+    return;
+
+}
+
+b32     
+opengl_shader_set_uniform_mat4(GLuint program, ccptr loc, mat4 *source, u64 count)
+{
+    GLint uniform_location = glGetUniformLocation(program, loc);
+    if (uniform_location == GL_INVALID_VALUE || uniform_location == -1)
+        return false;
+    glUniformMatrix4fv(uniform_location, count, GL_FALSE, &(*source)[0][0]);
+    return true;
+}
+
+b32     
+opengl_shader_set_uniform_vec2(GLuint program, ccptr loc, vec2 *source, u64 count)
+{
+    GLint uniform_location = glGetUniformLocation(program, loc);
+    if (uniform_location == GL_INVALID_VALUE || uniform_location == -1)
+        return false;
+    glUniform2fv(uniform_location, count, &(*source)[0]);
+    return true;
+}
+
+b32     
+opengl_shader_set_uniform_vec3(GLuint program, ccptr loc, vec3 *source, u64 count)
+{
+    GLuint uniform_location = glGetUniformLocation(program, loc);
+    if (uniform_location == GL_INVALID_VALUE || uniform_location == -1)
+        return false;
+    glUniform3fv(uniform_location, count, &(*source)[0]);
+    return true;
+}
+
+b32     
+opengl_shader_set_uniform_vec4(GLuint program, ccptr loc, vec4 *source, u64 count)
+{
+    GLint uniform_location = glGetUniformLocation(program, loc);
+    if (uniform_location == GL_INVALID_VALUE || uniform_location == -1)
+        return false;
+    glUniform4fv(uniform_location, count, &(*source)[0]);
+    return true;
+}
+
+b32     
+opengl_shader_set_uniform_r32(GLuint program, ccptr loc, r32 *source, u64 count)
+{
+    GLint uniform_location = glGetUniformLocation(program, loc);
+    if (uniform_location == GL_INVALID_VALUE || uniform_location == -1)
+        return false;
+    glUniform1fv(uniform_location, count, (source));
+    return true;
+}
+
+b32     
+opengl_shader_set_uniform_i32(GLuint program, ccptr loc, i32 *source, u64 count)
+{
+    GLint uniform_location = glGetUniformLocation(program, loc);
+    if (uniform_location == GL_INVALID_VALUE || uniform_location == -1)
+        return false;
+    glUniform1iv(uniform_location, count, (source));
+    return true;
+}
+
+b32     
+opengl_shader_set_uniform_u32(GLuint program, ccptr loc, u32 *source, u64 count)
+{
+    GLint uniform_location = glGetUniformLocation(program, loc);
+    if (uniform_location == GL_INVALID_VALUE || uniform_location == -1)
+        return false;
+    glUniform1uiv(uniform_location, count, (source));
+    return true;
+}
+
 
 // --- Platform OpenGL ---------------------------------------------------------
 //
