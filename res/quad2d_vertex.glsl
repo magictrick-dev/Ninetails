@@ -6,8 +6,11 @@ layout (location = 3) in vec2 v_scale;
 layout (location = 4) in vec2 v_texture_offset;
 layout (location = 5) in vec2 v_texture_dimensions;
 
-uniform mat4 projection;
-uniform mat4 camera;
+uniform mat4 u_projection;
+uniform mat4 u_camera;
+
+out vec2 v_texture_uv;
+out vec2 v_original_uv;
 
 mat4 mat4_from_position(vec2 position)
 {
@@ -37,6 +40,28 @@ mat4 mat4_from_scale(vec2 scale)
 
 void main()
 {
+
+    // Some trickery to generate the proper UVs depending on which of the four
+    // vertices we're located at in the instance we're rendering.
+    vec2 instance_uvs[4];
+    instance_uvs[0] = v_texture_offset; 
+
+    instance_uvs[1] = v_texture_offset; 
+    instance_uvs[1].y += v_texture_dimensions.y;
+
+    instance_uvs[2] = v_texture_offset;
+    instance_uvs[2] += v_texture_dimensions;
+
+    instance_uvs[3] = v_texture_offset; 
+    instance_uvs[3].x += v_texture_dimensions.x;
+
+    int index = gl_VertexID % 4;
+    v_texture_uv = instance_uvs[index];
+    v_original_uv = in_texture_coordinates;
+
+    mat4 translate_matrix = mat4_from_position(v_position);
+    mat4 scale_matrix = mat4_from_scale(v_scale);
+    gl_Position = u_projection * u_camera * translate_matrix * scale_matrix * vec4(in_position, 0.0f, 1.0f);
 
 }
 

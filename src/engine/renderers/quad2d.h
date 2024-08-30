@@ -79,6 +79,6 @@ typedef struct quad_render_buffer
 
 void renderer2d_create_quad_render_context(quad_render_buffer *buffer, memory_arena *arena, u64 count);
 void renderer2d_delete_quad_render_context(quad_render_buffer *buffer);
-void renderer2d_render_quad_render_context(quad_render_buffer *buffer);
+void renderer2d_render_quad_render_context(quad_render_buffer *buffer, u64 count);
 
 #endif

@@ -3,10 +3,15 @@
 #include <platform/filesystem.h>
 #include <platform/opengl.h>
 #include <platform/window.h>
+
 #include <core/definitions.h>
 #include <core/linear.h>
 #include <core/arena.h>
+
 #include <engine/primitives.h>
+#include <engine/renderers/quad2d.h>
+
+#include <math.h>
 
 static memory_arena primary_arena;
 static b32 runtime_flag;
@@ -158,8 +163,25 @@ runtime_main(buffer heap)
     glGenVertexArrays(1, &vertex_array_object);
     glBindVertexArray(vertex_array_object);
 
+    // Initialize the quad renderer.
+    quad_render_buffer test_quad_renderer = {0};
+    renderer2d_create_quad_render_context(&test_quad_renderer, &primary_arena, 100);
+
+    // Determine our sub-texture dimensions to index each "sprite" from the sheet.
+    float subtexture_scale_x    = 1024.0f / 8.0f;
+    float subtexture_scale_y    = 1024.0f / 8.0f;
+    float subtexture_width      = subtexture_scale_x / 1024.0f;
+    float subtexture_height     = subtexture_scale_y / 1024.0f;
+
+    quad_layout* first = test_quad_renderer.vertex_buffer + 0;
+    first->transform.position   = { 100.0f, 100.0f };
+    first->transform.scale      = { 32.0f, 32.0f };
+    first->texture.offset       = { subtexture_width * 0, subtexture_height * 3 };
+    first->texture.dimension    = { subtexture_width, subtexture_height };
+
+
+
     // Standard runtime loop.
-    i32 count = 0;
     runtime_flag = true;
     while (runtime_flag)
     {
@@ -180,12 +202,30 @@ runtime_main(buffer heap)
         glClear(GL_DEPTH_BUFFER_BIT);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-        //cube();
+        u32 texture_slot = 0;
+        opengl_shader_set_uniform_u32(quad_program, "u_texture_index", &texture_slot, 1);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, base_texture); 
+        glUseProgram(quad_program);
 
+        mat4 projection = orthographic_rh_no(0.0f, window_get_width(),
+                0.0f, window_get_height(), 
+                -10.0f, 10.0f);
 
+        mat4 camera = translate({ 0.0f, 0.0f, 0.0f });
+
+        opengl_shader_set_uniform_mat4(quad_program, "u_projection", &projection, 1);
+        opengl_shader_set_uniform_mat4(quad_program, "u_camera", &camera, 1);
+
+        test_quad_renderer.vertex_buffer_count = 1;
+        renderer2d_render_quad_render_context(&test_quad_renderer, 1);
 
         // Swap the buffers at the end.
         window_swap_buffers();
+
+        // Undo what we just did.
+        glBindTexture(GL_TEXTURE_2D, base_texture);
+        glUseProgram(NULL);
         
         
     }
