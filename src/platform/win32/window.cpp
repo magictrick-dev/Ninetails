@@ -832,9 +832,11 @@ wGhostThreadMain(LPVOID user)
     {
 
         MSG current_message = {0};
-        GetMessageW(&current_message, 0, 0, 0);
-        TranslateMessage(&current_message);
-        DispatchMessageW(&current_message);
+        while (PeekMessageA(&current_message, 0, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&current_message);
+            DispatchMessageW(&current_message);
+        }
 
     }
 

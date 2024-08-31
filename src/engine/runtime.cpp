@@ -12,6 +12,8 @@
 #include <engine/renderers/quad2d.h>
 
 #include <math.h>
+#include <time.h>
+#include <cstdlib>
 
 static memory_arena primary_arena;
 static b32 runtime_flag;
@@ -32,15 +34,18 @@ runtime_init(buffer heap)
     memory_arena_initialize(&primary_arena, heap.ptr, heap.size);
 
     // Create the window, automatically show it to the user after it is made.
-    b32 window_created = window_initialize("Ninetails Game Engine", 640, 480, false);
+    b32 window_created = window_initialize("Ninetails Game Engine", 1280, 720, false);
     if (window_created == false) return false;
 
     // When the window is created, we can now initialize a render context.
     if (!create_opengl_render_context(window_get_handle())) return false;
+
+    /*
     if (!set_opengl_vertical_sync(1))
     {
         printf("-- Unable to set swap interval to desired value.\n");
     }
+    */
 
     // Set some OpenGL context stuff.
     glEnable(GL_BLEND);
@@ -151,6 +156,49 @@ runtime_init(buffer heap)
 
 }
 
+inline r32
+generate_r32_in_range(i32 low, i32 high)
+{
+
+    r32 decimal = rand() / (r32)RAND_MAX;
+    r32 integer = (r32)(rand() % (high - low + 1) + low);
+    r32 result = decimal + integer;
+    return result;
+
+}
+
+inline u32
+generate_u32_in_range(u32 low, u32 high)
+{
+
+    u32 result = rand() % (high - low + 1) + low;
+    return result;
+
+}
+
+// Determine our sub-texture dimensions to index each "sprite" from the sheet.
+static r32 subtexture_scale_x      = 1024.0f / 8.0f;
+static r32 subtexture_scale_y      = 1024.0f / 8.0f;
+static r32 subtexture_width        = subtexture_scale_x / 1024.0f;
+static r32 subtexture_height       = subtexture_scale_y / 1024.0f;
+
+inline void
+regenerate_quad(quad_layout *layout)
+{
+
+    r32 scale       = generate_r32_in_range(8, 32);
+    r32 position_x  = generate_r32_in_range(-100, window_get_width() + 100);
+    r32 position_y  = generate_r32_in_range(-100, window_get_height() + 100);
+    u32 index_x     = generate_u32_in_range(0, 7);
+    u32 index_y     = generate_u32_in_range(0, 7);
+
+    layout->transform.position   = { position_x, position_y };
+    layout->transform.scale      = { scale, scale};
+    layout->texture.offset       = { subtexture_width * index_x, subtexture_height * index_y };
+    layout->texture.dimension    = { subtexture_width, subtexture_height };
+
+}
+
 b32 
 runtime_main(buffer heap)
 {
@@ -164,14 +212,11 @@ runtime_main(buffer heap)
     glBindVertexArray(vertex_array_object);
 
     // Initialize the quad renderer.
+    i64 quads_rendered = 500000;
+    i64 quads_limit = 4000000;
+    i64 quads_fast_increment = 10000;
     quad_render_buffer test_quad_renderer = {0};
-    renderer2d_create_quad_render_context(&test_quad_renderer, &primary_arena, 100);
-
-    // Determine our sub-texture dimensions to index each "sprite" from the sheet.
-    float subtexture_scale_x    = 1024.0f / 8.0f;
-    float subtexture_scale_y    = 1024.0f / 8.0f;
-    float subtexture_width      = subtexture_scale_x / 1024.0f;
-    float subtexture_height     = subtexture_scale_y / 1024.0f;
+    renderer2d_create_quad_render_context(&test_quad_renderer, &primary_arena, quads_limit);
 
     quad_layout* first = test_quad_renderer.vertex_buffer + 0;
     first->transform.position   = { 100.0f, 100.0f };
@@ -179,7 +224,28 @@ runtime_main(buffer heap)
     first->texture.offset       = { subtexture_width * 0, subtexture_height * 3 };
     first->texture.dimension    = { subtexture_width, subtexture_height };
 
+    srand(time(0));
 
+    // Initialize all the quads.
+    for (u64 i = 0; i < quads_limit; ++i)
+    {
+
+        quad_layout* current = test_quad_renderer.vertex_buffer + i;
+        regenerate_quad(current);
+
+    }
+
+    // Pre-activate the program and texture binding.
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, base_texture); 
+    glUseProgram(quad_program);
+
+    // Runtime loop delta time.
+    u64 frequency = system_timestamp_frequency();
+    u64 frame_begin_time = system_timestamp();
+    r32 delta_time = 1.0f / 60.0f; // Default, for first frame.
+    
+    char window_title_buffer[100];
 
     // Standard runtime loop.
     runtime_flag = true;
@@ -196,7 +262,134 @@ runtime_main(buffer heap)
             input_release_all();
         }
 
-        // Rendering pre-frame stuff.
+        // --- Game Logic ------------------------------------------------------
+        //
+        // Generally want this to occur before the render logic.
+        //
+
+        sprintf_s(window_title_buffer, 100, "Ninetails Game Engine - %.2f FPS - %llu",
+                1.0f / delta_time, quads_rendered);
+        window_set_title(window_title_buffer);
+
+        if (input_key_is_pressed(NxKeyF))
+        {
+            
+            printf("Deltatime is: %.8f or %.2f frames/second.\n", delta_time, 1.0f / delta_time);
+
+        }
+
+        if (input_key_is_pressed(NxKeyU))
+        {
+
+            for (u64 i = 0; i < quads_rendered; ++i)
+            {
+
+                quad_layout* current = test_quad_renderer.vertex_buffer + i;
+                regenerate_quad(current);
+
+            }
+
+        }
+
+        if (input_key_is_down(NxKeyControl) && input_key_is_pressed(NxKeyEnter))
+        {
+
+            b32 fullscreen = window_is_borderless_fullscreen();
+            window_set_borderless_fullscreen(!fullscreen, 1280, 720);
+
+        }
+
+        if (input_key_is_pressed(NxKeyM))
+        {
+            
+            if (quads_rendered == 0)
+                quads_rendered = 1;
+            if (quads_rendered < quads_limit)
+            {
+
+                i64 previous = quads_rendered;
+
+                if (quads_rendered < quads_fast_increment)
+                    quads_rendered *= 10;
+                else
+                    quads_rendered += quads_fast_increment;
+
+                for (i64 idx = previous - 1; idx < quads_rendered; ++idx)
+                    regenerate_quad(test_quad_renderer.vertex_buffer + idx);
+            }
+
+        }
+
+        if (input_key_is_pressed(NxKeyN))
+        {
+            if (quads_rendered < quads_fast_increment)
+                quads_rendered /= 10;
+            else
+                quads_rendered -= quads_fast_increment;
+            if (quads_rendered <= 0) quads_rendered = 0;
+        }
+
+        // Loop unrolling to increase cache-level performance.
+        for (u64 i = 0; i < quads_rendered; i+=8)
+        {
+
+            quad_layout* a = test_quad_renderer.vertex_buffer + i + 0;
+            quad_layout* b = test_quad_renderer.vertex_buffer + i + 1;
+            quad_layout* c = test_quad_renderer.vertex_buffer + i + 2;
+            quad_layout* d = test_quad_renderer.vertex_buffer + i + 3;
+            quad_layout* e = test_quad_renderer.vertex_buffer + i + 4;
+            quad_layout* f = test_quad_renderer.vertex_buffer + i + 5;
+            quad_layout* g = test_quad_renderer.vertex_buffer + i + 6;
+            quad_layout* h = test_quad_renderer.vertex_buffer + i + 7;
+
+#           define SCALE_REDUCTION 24.0f
+#           define FALL_REDUCTION 128.0f
+
+            r32 scaling = SCALE_REDUCTION * delta_time;
+            r32 falling = FALL_REDUCTION * delta_time;
+
+            a->transform.scale.X -= scaling;
+            b->transform.scale.X -= scaling;
+            c->transform.scale.X -= scaling;
+            d->transform.scale.X -= scaling;
+            a->transform.scale.Y = a->transform.scale.X;
+            b->transform.scale.Y = b->transform.scale.X;
+            c->transform.scale.Y = c->transform.scale.X;
+            d->transform.scale.Y = d->transform.scale.X;
+            a->transform.position.Y -= falling;
+            b->transform.position.Y -= falling;
+            c->transform.position.Y -= falling;
+            d->transform.position.Y -= falling;
+            e->transform.scale.X -= scaling;
+            f->transform.scale.X -= scaling;
+            g->transform.scale.X -= scaling;
+            h->transform.scale.X -= scaling;
+            e->transform.scale.Y = e->transform.scale.X;
+            f->transform.scale.Y = f->transform.scale.X;
+            g->transform.scale.Y = g->transform.scale.X;
+            h->transform.scale.Y = h->transform.scale.X;
+            e->transform.position.Y -= falling;
+            f->transform.position.Y -= falling;
+            g->transform.position.Y -= falling;
+            h->transform.position.Y -= falling;
+
+            if (a->transform.scale.X <= 0.0f) regenerate_quad(a);
+            if (b->transform.scale.X <= 0.0f) regenerate_quad(b);
+            if (c->transform.scale.X <= 0.0f) regenerate_quad(c);
+            if (d->transform.scale.X <= 0.0f) regenerate_quad(d);
+            if (e->transform.scale.X <= 0.0f) regenerate_quad(e);
+            if (f->transform.scale.X <= 0.0f) regenerate_quad(f);
+            if (g->transform.scale.X <= 0.0f) regenerate_quad(g);
+            if (h->transform.scale.X <= 0.0f) regenerate_quad(h);
+
+        }
+
+        // --- Rendering -------------------------------------------------------
+        //
+        // Here is some rendering logic. Essentially, we update the OpenGL state
+        // and fire off the quad renderer routine and clear the state.
+        //
+
         glViewport(0, 0, window_get_width(), window_get_height());
         glClear(GL_COLOR_BUFFER_BIT);
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -204,9 +397,6 @@ runtime_main(buffer heap)
 
         u32 texture_slot = 0;
         opengl_shader_set_uniform_u32(quad_program, "u_texture_index", &texture_slot, 1);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, base_texture); 
-        glUseProgram(quad_program);
 
         mat4 projection = orthographic_rh_no(0.0f, window_get_width(),
                 0.0f, window_get_height(), 
@@ -218,15 +408,17 @@ runtime_main(buffer heap)
         opengl_shader_set_uniform_mat4(quad_program, "u_camera", &camera, 1);
 
         test_quad_renderer.vertex_buffer_count = 1;
-        renderer2d_render_quad_render_context(&test_quad_renderer, 1);
+        renderer2d_render_quad_render_context(&test_quad_renderer, quads_rendered);
 
         // Swap the buffers at the end.
         window_swap_buffers();
 
-        // Undo what we just did.
-        glBindTexture(GL_TEXTURE_2D, base_texture);
-        glUseProgram(NULL);
-        
+        // Calculate the next frames delta time.
+        u64 frame_end_time = system_timestamp();
+        delta_time = system_timestamp_difference_ss(frame_begin_time, frame_end_time);
+
+        // Prime the frame timer.
+        frame_begin_time = system_timestamp();
         
     }
 

@@ -42,15 +42,15 @@
   the runtime library implementation of these functions.
 
   Define HANDMADE_MATH_PROVIDE_MATH_FUNCTIONS and provide your own
-  implementations of sinf, cosf, tanf, acosf, and sqrtf
+  implementations of hmm_sinf, hmm_cosf, hmm_tanf, acosf, and hmm_sqrtf
   before including HandmadeMath.h, like so:
 
     #define HANDMADE_MATH_PROVIDE_MATH_FUNCTIONS
-    #define sinf MySinF
-    #define cosf MyCosF
-    #define tanf MyTanF
-    #define acosf MyACosF
-    #define sqrtf MySqrtF
+    #define hmm_sinf MySinF
+    #define hmm_cosf MyCosF
+    #define hmm_tanf MyTanF
+    #define ahmm_cosf MyACosF
+    #define hmm_sqrtf MySqrtF
     #include "HandmadeMath.h"
 
   By default, it is assumed that your math functions take radians. To use
@@ -155,11 +155,11 @@
 #endif
 
 #if defined(__GNUC__) || defined(__clang__)
-# define deprecated(msg) __attribute__((deprecated(msg)))
+# define hmm_deprecated(msg) __attribute__((hmm_deprecated(msg)))
 #elif defined(_MSC_VER)
-# define deprecated(msg) __declspec(deprecated(msg))
+# define hmm_deprecated(msg) __declspec(hmm_deprecated(msg))
 #else
-# define deprecated(msg)
+# define hmm_deprecated(msg)
 #endif
 
 #ifdef __cplusplus
@@ -202,11 +202,11 @@ extern "C"
 
 #if !defined(HANDMADE_MATH_PROVIDE_MATH_FUNCTIONS)
 # include <math.h>
-# define sinf sinf
-# define cosf cosf
-# define tanf tanf
-# define sqrtf sqrtf
-# define acosf acosf
+# define hmm_sinf sinf
+# define hmm_cosf cosf
+# define hmm_tanf tanf
+# define hmm_sqrtf hmm_sqrtf
+# define hmm_acosf acosf
 #endif
 
 #if !defined(angle_user_to_internal)
@@ -481,38 +481,38 @@ static inline float toturn(float Angle)
  * Floating-point math functions
  */
 
-COVERAGE(sinf, 1)
-static inline float sinf(float Angle)
+COVERAGE(hmm_sinf, 1)
+static inline float hmm_sinf(float Angle)
 {
-    ASSERT_COVERED(sinf);
+    ASSERT_COVERED(hmm_sinf);
     return sinf(angle_user_to_internal(Angle));
 }
 
-COVERAGE(cosf, 1)
-static inline float cosf(float Angle)
+COVERAGE(hmm_cosf, 1)
+static inline float hmm_cosf(float Angle)
 {
-    ASSERT_COVERED(cosf);
+    ASSERT_COVERED(hmm_cosf);
     return cosf(angle_user_to_internal(Angle));
 }
 
-COVERAGE(tanf, 1)
-static inline float tanf(float Angle)
+COVERAGE(hmm_tanf, 1)
+static inline float hmm_tanf(float Angle)
 {
-    ASSERT_COVERED(tanf);
+    ASSERT_COVERED(hmm_tanf);
     return tanf(angle_user_to_internal(Angle));
 }
 
-COVERAGE(acosf, 1)
-static inline float acosf(float Arg)
+COVERAGE(ahmm_cosf, 1)
+static inline float hmm_acosf(float Arg)
 {
-    ASSERT_COVERED(acosf);
-    return angle_internal_to_user(acosf(Arg));
+    ASSERT_COVERED(hmm_acosf);
+    return angle_internal_to_user(hmm_acosf(Arg));
 }
 
-COVERAGE(sqrtf, 1)
-static inline float sqrtf(float Float)
+COVERAGE(hmm_sqrtf, 1)
+static inline float hmm_sqrtf(float Float)
 {
-    ASSERT_COVERED(sqrtf);
+    ASSERT_COVERED(hmm_sqrtf);
 
     float Result;
 
@@ -531,14 +531,14 @@ static inline float sqrtf(float Float)
     return Result;
 }
 
-COVERAGE(invsqrtf, 1)
-static inline float invsqrtf(float Float)
+COVERAGE(invhmm_sqrtf, 1)
+static inline float invhmm_sqrtf(float Float)
 {
-    ASSERT_COVERED(invsqrtf);
+    ASSERT_COVERED(invhmm_sqrtf);
 
     float Result;
 
-    Result = 1.0f/sqrtf(Float);
+    Result = 1.0f/hmm_sqrtf(Float);
 
     return Result;
 }
@@ -1038,42 +1038,42 @@ COVERAGE(lenv2, 1)
 static inline float lenv2(vec2 A)
 {
     ASSERT_COVERED(lenv2);
-    return sqrtf(lensqrv2(A));
+    return hmm_sqrtf(lensqrv2(A));
 }
 
 COVERAGE(lenv3, 1)
 static inline float lenv3(vec3 A)
 {
     ASSERT_COVERED(lenv3);
-    return sqrtf(lensqrv3(A));
+    return hmm_sqrtf(lensqrv3(A));
 }
 
 COVERAGE(lenv4, 1)
 static inline float lenv4(vec4 A)
 {
     ASSERT_COVERED(lenv4);
-    return sqrtf(lensqrv4(A));
+    return hmm_sqrtf(lensqrv4(A));
 }
 
 COVERAGE(normv2, 1)
 static inline vec2 normv2(vec2 A)
 {
     ASSERT_COVERED(normv2);
-    return mulv2f(A, invsqrtf(dotv2(A, A)));
+    return mulv2f(A, invhmm_sqrtf(dotv2(A, A)));
 }
 
 COVERAGE(normv3, 1)
 static inline vec3 normv3(vec3 A)
 {
     ASSERT_COVERED(normv3);
-    return mulv3f(A, invsqrtf(dotv3(A, A)));
+    return mulv3f(A, invhmm_sqrtf(dotv3(A, A)));
 }
 
 COVERAGE(normv4, 1)
 static inline vec4 normv4(vec4 A)
 {
     ASSERT_COVERED(normv4);
-    return mulv4f(A, invsqrtf(dotv4(A, A)));
+    return mulv4f(A, invhmm_sqrtf(dotv4(A, A)));
 }
 
 /*
@@ -1825,7 +1825,7 @@ static inline mat4 perspective_rh_no(float FOV, float AspectRatio, float Near, f
 
     // See https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml
 
-    float Cotangent = 1.0f / tanf(FOV / 2.0f);
+    float Cotangent = 1.0f / hmm_tanf(FOV / 2.0f);
     Result.Elements[0][0] = Cotangent / AspectRatio;
     Result.Elements[1][1] = Cotangent;
     Result.Elements[2][3] = -1.0f;
@@ -1845,7 +1845,7 @@ static inline mat4 perspective_rh_zo(float FOV, float AspectRatio, float Near, f
 
     // See https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml
 
-    float Cotangent = 1.0f / tanf(FOV / 2.0f);
+    float Cotangent = 1.0f / hmm_tanf(FOV / 2.0f);
     Result.Elements[0][0] = Cotangent / AspectRatio;
     Result.Elements[1][1] = Cotangent;
     Result.Elements[2][3] = -1.0f;
@@ -1949,8 +1949,8 @@ static inline mat4 rotate_rh(float Angle, vec3 Axis)
 
     Axis = normv3(Axis);
 
-    float SinTheta = sinf(Angle);
-    float CosTheta = cosf(Angle);
+    float SinTheta = hmm_sinf(Angle);
+    float CosTheta = hmm_cosf(Angle);
     float CosValue = 1.0f - CosTheta;
 
     Result.Elements[0][0] = (Axis.X * Axis.X * CosValue) + CosTheta;
@@ -2388,9 +2388,9 @@ static inline quat slerp(quat Left, float Time, quat Right)
     if (Cos_Theta > 0.9995f) {
         Result = nlerp(Left, Time, Right);
     } else {
-        float Angle = acosf(Cos_Theta);
-        float MixLeft = sinf((1.0f - Time) * Angle);
-        float MixRight = sinf(Time * Angle);
+        float Angle = hmm_acosf(Cos_Theta);
+        float MixLeft = hmm_sinf((1.0f - Time) * Angle);
+        float MixRight = hmm_sinf(Time * Angle);
 
         Result = _mixq(Left, MixLeft, Right, MixRight);
         Result = normq(Result);
@@ -2511,7 +2511,7 @@ static inline quat m4toq_rh(mat4 M)
         }
     }
 
-    Q = mulqf(Q, 0.5f / sqrtf(T));
+    Q = mulqf(Q, 0.5f / hmm_sqrtf(T));
 
     return Q;
 }
@@ -2568,7 +2568,7 @@ static inline quat m4toq_lh(mat4 M)
         }
     }
 
-    Q = mulqf(Q, 0.5f / sqrtf(T));
+    Q = mulqf(Q, 0.5f / hmm_sqrtf(T));
 
     return Q;
 }
@@ -2582,10 +2582,10 @@ static inline quat qfromaxisangle_rh(vec3 Axis, float Angle)
     quat Result;
 
     vec3 AxisNormalized = normv3(Axis);
-    float SineOfRotation = sinf(Angle / 2.0f);
+    float SineOfRotation = hmm_sinf(Angle / 2.0f);
 
     Result.XYZ = mulv3f(AxisNormalized, SineOfRotation);
-    Result.W = cosf(Angle / 2.0f);
+    Result.W = hmm_cosf(Angle / 2.0f);
 
     return Result;
 }
@@ -2624,8 +2624,8 @@ static inline vec2 rotatev2(vec2 V, float Angle)
 {
     ASSERT_COVERED(rotatev2)
 
-    float sinA = sinf(Angle);
-    float cosA = cosf(Angle);
+    float sinA = hmm_sinf(Angle);
+    float cosA = hmm_cosf(Angle);
 
     return v2(V.X * cosA - V.Y * sinA, V.X * sinA + V.Y * cosA);
 }
