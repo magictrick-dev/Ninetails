@@ -895,65 +895,6 @@ wMainWindowProc(HWND window, UINT message, WPARAM w_param, LPARAM l_param)
             break;
         };
 
-
-/*
-
-        case WM_MBUTTONDOWN:
-        case WM_RBUTTONDOWN:
-        case WM_LBUTTONDOWN:
-        {
-            
-            window_context *context = (window_context*)GetWindowLongPtrA(window, GWLP_USERDATA);
-            if (w_param == MK_LBUTTON)
-                PostThreadMessage(context->ghost.main_thread_identifier, UD_MOUSE_DOWN, 
-                        (WPARAM)context, (LPARAM)KitMouseLeft);
-            else if (w_param == MK_RBUTTON)
-                PostThreadMessage(context->ghost.main_thread_identifier, UD_MOUSE_DOWN, 
-                        (WPARAM)context, (LPARAM)KitMouseRight);
-            else if (w_param == MK_RBUTTON)
-                PostThreadMessage(context->ghost.main_thread_identifier, UD_MOUSE_DOWN, 
-                        (WPARAM)context, (LPARAM)KitMouseMiddle);
-            break;
-        }
-
-        case WM_MBUTTONUP:
-        {
-
-            window_context *context = (window_context*)GetWindowLongPtrA(window, GWLP_USERDATA);
-            PostThreadMessage(context->ghost.main_thread_identifier, UD_MOUSE_UP, 
-                    (WPARAM)context, (LPARAM)KitMouseMiddle);
-            break;
-
-        };
-
-        case WM_RBUTTONUP:
-        {
-
-            window_context *context = (window_context*)GetWindowLongPtrA(window, GWLP_USERDATA);
-            PostThreadMessage(context->ghost.main_thread_identifier, UD_MOUSE_UP, 
-                    (WPARAM)context, (LPARAM)KitMouseRight);
-            break;
-
-        };
-
-        case WM_LBUTTONUP:
-        {
-            window_context *context = (window_context*)GetWindowLongPtrA(window, GWLP_USERDATA);
-            PostThreadMessage(context->ghost.main_thread_identifier, UD_MOUSE_UP, 
-                    (WPARAM)context, (LPARAM)KitMouseLeft);
-            break;
-        };
-
-        case WM_MOUSEWHEEL:
-        {
-            window_context *context = (window_context*)GetWindowLongPtrA(window, GWLP_USERDATA);
-
-            int scroll = GET_WHEEL_DELTA_WPARAM(w_param);
-            PostThreadMessage(context->ghost.main_thread_identifier, UD_MOUSE_SCROLL, 
-                    (WPARAM)context, (LPARAM)scroll);
-        };
-*/
-
         default:
         {
             ret_result = DefWindowProcW(window, message, w_param, l_param);

@@ -14,6 +14,28 @@
 #include <math.h>
 #include <time.h>
 #include <cstdlib>
+#include <thread>
+#include <random>
+
+inline r32
+generate_r32_in_range(i32 low, i32 high)
+{
+
+    static thread_local std::mt19937 float_generator(std::random_device{}());
+    std::uniform_real_distribution<float> distribution((float)low, (float)high);
+    return distribution(float_generator);
+
+}
+
+inline u32
+generate_u32_in_range(u32 low, u32 high)
+{
+
+    static thread_local std::mt19937 generator(std::random_device{}());
+    std::uniform_int_distribution<unsigned int> distribution(low,high);
+    return distribution(generator);
+
+}
 
 static memory_arena primary_arena;
 static b32 runtime_flag;
@@ -40,12 +62,10 @@ runtime_init(buffer heap)
     // When the window is created, we can now initialize a render context.
     if (!create_opengl_render_context(window_get_handle())) return false;
 
-    /*
-    if (!set_opengl_vertical_sync(1))
+    if (!set_opengl_vertical_sync(0))
     {
         printf("-- Unable to set swap interval to desired value.\n");
     }
-    */
 
     // Set some OpenGL context stuff.
     glEnable(GL_BLEND);
@@ -156,26 +176,6 @@ runtime_init(buffer heap)
 
 }
 
-inline r32
-generate_r32_in_range(i32 low, i32 high)
-{
-
-    r32 decimal = rand() / (r32)RAND_MAX;
-    r32 integer = (r32)(rand() % (high - low + 1) + low);
-    r32 result = decimal + integer;
-    return result;
-
-}
-
-inline u32
-generate_u32_in_range(u32 low, u32 high)
-{
-
-    u32 result = rand() % (high - low + 1) + low;
-    return result;
-
-}
-
 // Determine our sub-texture dimensions to index each "sprite" from the sheet.
 static r32 subtexture_scale_x      = 1024.0f / 8.0f;
 static r32 subtexture_scale_y      = 1024.0f / 8.0f;
@@ -199,6 +199,90 @@ regenerate_quad(quad_layout *layout)
 
 }
 
+#define SCALE_REDUCTION 24.0f
+#define FALL_REDUCTION 128.0f
+
+void
+update_quads_within_range(r32 delta_time, u64 start, u64 total, quad_layout *array)
+{
+
+    u64 remainder = (total - start) % 8;
+    u64 end = (total - start) - remainder;
+
+    // Loop unrolling to increase cache-level performance.
+    u64 i = start;
+    for (; i < start+end; i+=8)
+    {
+
+        quad_layout* a = array + i + 0;
+        quad_layout* b = array + i + 1;
+        quad_layout* c = array + i + 2;
+        quad_layout* d = array + i + 3;
+        quad_layout* e = array + i + 4;
+        quad_layout* f = array + i + 5;
+        quad_layout* g = array + i + 6;
+        quad_layout* h = array + i + 7;
+
+
+        r32 scaling = SCALE_REDUCTION * delta_time;
+        r32 falling = FALL_REDUCTION * delta_time;
+
+        a->transform.scale.X -= scaling;
+        b->transform.scale.X -= scaling;
+        c->transform.scale.X -= scaling;
+        d->transform.scale.X -= scaling;
+        a->transform.scale.Y = a->transform.scale.X;
+        b->transform.scale.Y = b->transform.scale.X;
+        c->transform.scale.Y = c->transform.scale.X;
+        d->transform.scale.Y = d->transform.scale.X;
+
+        e->transform.scale.X -= scaling;
+        f->transform.scale.X -= scaling;
+        g->transform.scale.X -= scaling;
+        h->transform.scale.X -= scaling;
+        e->transform.scale.Y = e->transform.scale.X;
+        f->transform.scale.Y = f->transform.scale.X;
+        g->transform.scale.Y = g->transform.scale.X;
+        h->transform.scale.Y = h->transform.scale.X;
+
+        a->transform.position.Y -= falling;
+        b->transform.position.Y -= falling;
+        c->transform.position.Y -= falling;
+        d->transform.position.Y -= falling;
+
+        e->transform.position.Y -= falling;
+        f->transform.position.Y -= falling;
+        g->transform.position.Y -= falling;
+        h->transform.position.Y -= falling;
+
+        if (a->transform.scale.X <= 0.0f) regenerate_quad(a);
+        if (b->transform.scale.X <= 0.0f) regenerate_quad(b);
+        if (c->transform.scale.X <= 0.0f) regenerate_quad(c);
+        if (d->transform.scale.X <= 0.0f) regenerate_quad(d);
+        if (e->transform.scale.X <= 0.0f) regenerate_quad(e);
+        if (f->transform.scale.X <= 0.0f) regenerate_quad(f);
+        if (g->transform.scale.X <= 0.0f) regenerate_quad(g);
+        if (h->transform.scale.X <= 0.0f) regenerate_quad(h);
+
+    }
+
+    for (; i < start + end + remainder; i++)
+    {
+
+        quad_layout* a = array + i + 0;
+
+        r32 scaling = SCALE_REDUCTION * delta_time;
+        r32 falling = FALL_REDUCTION * delta_time;
+
+        a->transform.scale.X -= scaling;
+        a->transform.scale.Y = a->transform.scale.X;
+        a->transform.position.Y -= falling;
+
+        if (a->transform.scale.X <= 0.0f) regenerate_quad(a);
+
+    }
+}
+
 b32 
 runtime_main(buffer heap)
 {
@@ -211,8 +295,13 @@ runtime_main(buffer heap)
     glGenVertexArrays(1, &vertex_array_object);
     glBindVertexArray(vertex_array_object);
 
+    // Set up frame averaging.
+    u32 frame_index = 0;
+    r32 frame_times[128];
+    for (u32 i = 0; i < 128; ++i) frame_times[i] = 1.0f/60.0f;
+
     // Initialize the quad renderer.
-    i64 quads_rendered = 500000;
+    i64 quads_rendered = 1;
     i64 quads_limit = 4000000;
     i64 quads_fast_increment = 10000;
     quad_render_buffer test_quad_renderer = {0};
@@ -223,8 +312,6 @@ runtime_main(buffer heap)
     first->transform.scale      = { 32.0f, 32.0f };
     first->texture.offset       = { subtexture_width * 0, subtexture_height * 3 };
     first->texture.dimension    = { subtexture_width, subtexture_height };
-
-    srand(time(0));
 
     // Initialize all the quads.
     for (u64 i = 0; i < quads_limit; ++i)
@@ -243,6 +330,8 @@ runtime_main(buffer heap)
     // Runtime loop delta time.
     u64 frequency = system_timestamp_frequency();
     u64 frame_begin_time = system_timestamp();
+    r32 frame_average = 1.0f / 60.0f;
+    r32 frame_interval = 0.0f;
     r32 delta_time = 1.0f / 60.0f; // Default, for first frame.
     
     char window_title_buffer[100];
@@ -267,8 +356,24 @@ runtime_main(buffer heap)
         // Generally want this to occur before the render logic.
         //
 
+        // Update the frame time.
+        if (frame_index >= 128)
+        {
+            frame_index = 0;
+        }
+
+        frame_times[frame_index++] = delta_time;
+
+        frame_interval += delta_time;
+        if (frame_interval >= 0.33f)
+        {
+            for (u32 i = 0; i < 128; ++i) frame_average += frame_times[i];
+            frame_average /= 128;
+            frame_interval = 0.0f;
+        }
+
         sprintf_s(window_title_buffer, 100, "Ninetails Game Engine - %.2f FPS - %llu",
-                1.0f / delta_time, quads_rendered);
+                1.0f / frame_average, quads_rendered);
         window_set_title(window_title_buffer);
 
         if (input_key_is_pressed(NxKeyF))
@@ -304,85 +409,64 @@ runtime_main(buffer heap)
             
             if (quads_rendered == 0)
                 quads_rendered = 1;
-            if (quads_rendered < quads_limit)
+            else if (quads_rendered < 10)
             {
-
                 i64 previous = quads_rendered;
-
-                if (quads_rendered < quads_fast_increment)
-                    quads_rendered *= 10;
-                else
-                    quads_rendered += quads_fast_increment;
-
+                quads_rendered += 1;
                 for (i64 idx = previous - 1; idx < quads_rendered; ++idx)
                     regenerate_quad(test_quad_renderer.vertex_buffer + idx);
+
+            }
+            else if (quads_rendered < 100)
+            {
+                i64 previous = quads_rendered;
+                quads_rendered += 10;
+                for (i64 idx = previous - 1; idx < quads_rendered; ++idx)
+                    regenerate_quad(test_quad_renderer.vertex_buffer + idx);
+
+            }
+            else if (quads_rendered < 1000)
+            {
+                i64 previous = quads_rendered;
+                quads_rendered += 100;
+                for (i64 idx = previous - 1; idx < quads_rendered; ++idx)
+                    regenerate_quad(test_quad_renderer.vertex_buffer + idx);
+
+            }
+            else if (quads_rendered < 10000)
+            {
+                i64 previous = quads_rendered;
+                quads_rendered += 1000;
+                for (i64 idx = previous - 1; idx < quads_rendered; ++idx)
+                    regenerate_quad(test_quad_renderer.vertex_buffer + idx);
+
+            }
+            else if (quads_rendered < 100000)
+            {
+                i64 previous = quads_rendered;
+                quads_rendered += 10000;
+                for (i64 idx = previous - 1; idx < quads_rendered; ++idx)
+                    regenerate_quad(test_quad_renderer.vertex_buffer + idx);
+
+            }
+            else
+            {
+                i64 previous = quads_rendered;
+                quads_rendered += 100000;
+                for (i64 idx = previous - 1; idx < quads_rendered; ++idx)
+                    regenerate_quad(test_quad_renderer.vertex_buffer + idx);
+
             }
 
         }
 
         if (input_key_is_pressed(NxKeyN))
         {
-            if (quads_rendered < quads_fast_increment)
-                quads_rendered /= 10;
-            else
-                quads_rendered -= quads_fast_increment;
+            quads_rendered /= 10;
             if (quads_rendered <= 0) quads_rendered = 0;
         }
 
-        // Loop unrolling to increase cache-level performance.
-        for (u64 i = 0; i < quads_rendered; i+=8)
-        {
-
-            quad_layout* a = test_quad_renderer.vertex_buffer + i + 0;
-            quad_layout* b = test_quad_renderer.vertex_buffer + i + 1;
-            quad_layout* c = test_quad_renderer.vertex_buffer + i + 2;
-            quad_layout* d = test_quad_renderer.vertex_buffer + i + 3;
-            quad_layout* e = test_quad_renderer.vertex_buffer + i + 4;
-            quad_layout* f = test_quad_renderer.vertex_buffer + i + 5;
-            quad_layout* g = test_quad_renderer.vertex_buffer + i + 6;
-            quad_layout* h = test_quad_renderer.vertex_buffer + i + 7;
-
-#           define SCALE_REDUCTION 24.0f
-#           define FALL_REDUCTION 128.0f
-
-            r32 scaling = SCALE_REDUCTION * delta_time;
-            r32 falling = FALL_REDUCTION * delta_time;
-
-            a->transform.scale.X -= scaling;
-            b->transform.scale.X -= scaling;
-            c->transform.scale.X -= scaling;
-            d->transform.scale.X -= scaling;
-            a->transform.scale.Y = a->transform.scale.X;
-            b->transform.scale.Y = b->transform.scale.X;
-            c->transform.scale.Y = c->transform.scale.X;
-            d->transform.scale.Y = d->transform.scale.X;
-            a->transform.position.Y -= falling;
-            b->transform.position.Y -= falling;
-            c->transform.position.Y -= falling;
-            d->transform.position.Y -= falling;
-            e->transform.scale.X -= scaling;
-            f->transform.scale.X -= scaling;
-            g->transform.scale.X -= scaling;
-            h->transform.scale.X -= scaling;
-            e->transform.scale.Y = e->transform.scale.X;
-            f->transform.scale.Y = f->transform.scale.X;
-            g->transform.scale.Y = g->transform.scale.X;
-            h->transform.scale.Y = h->transform.scale.X;
-            e->transform.position.Y -= falling;
-            f->transform.position.Y -= falling;
-            g->transform.position.Y -= falling;
-            h->transform.position.Y -= falling;
-
-            if (a->transform.scale.X <= 0.0f) regenerate_quad(a);
-            if (b->transform.scale.X <= 0.0f) regenerate_quad(b);
-            if (c->transform.scale.X <= 0.0f) regenerate_quad(c);
-            if (d->transform.scale.X <= 0.0f) regenerate_quad(d);
-            if (e->transform.scale.X <= 0.0f) regenerate_quad(e);
-            if (f->transform.scale.X <= 0.0f) regenerate_quad(f);
-            if (g->transform.scale.X <= 0.0f) regenerate_quad(g);
-            if (h->transform.scale.X <= 0.0f) regenerate_quad(h);
-
-        }
+        update_quads_within_range(delta_time, 0, quads_rendered, test_quad_renderer.vertex_buffer);
 
         // --- Rendering -------------------------------------------------------
         //
